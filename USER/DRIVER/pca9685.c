@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
  * @LastEditors:Robosea
- * @LastEditTime:2020-02-22 22:59:39
+ * @LastEditTime:2020-03-24 19:42:11
  * @FilePath      :\ROV_F429_APP-10-10\USER\DRIVER\pca9685.c
  * @brief         :PCA9685是IIC转16路PWM模块
  */
@@ -77,7 +77,7 @@ void PCA_MG9XX_Init(float hz, u16 init_pwm)
     pca_setpwm(6, 0, off);
     pca_setpwm(7, 0, off);
     pca_setpwm(8, 0, off);
-    pca_setpwm(9, 0, off);
+    pca_setpwm(9, 0, MANIPULATOR_MID);
     pca_setpwm(10, 0, off);
     pca_setpwm(11, 0, off);
     pca_setpwm(12, 0, off);

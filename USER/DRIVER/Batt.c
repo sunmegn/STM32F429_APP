@@ -1,12 +1,20 @@
+/**
+ * @author        :robosea
+ * @version       :v1.0.0
+ * @Date          :2020-03-24 19:26:21
+ * @LastEditors:Robosea
+ * @LastEditTime:2020-04-01 10:01:10
+ * @brief         :
+ */
 #include "Batt.h"
 
 #define BATT_BUFFER_SIZE 50
-uint32_t ADC_Value[10];
+uint32_t ADC_Value[10]; //存放ADC采样电流值
 uint32_t BatCurrentBuf[BAT_C_FILTER_N + 1] = {0};
 float    BatVoltageBuf[BAT_V_FILTER_N + 1] = {0};
 /**********************************************************************************************************
 *函 数 名: GetBattInit
-*功能说明: 电压电流值采样
+*功能说明: 电流值采样
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
@@ -20,19 +28,13 @@ void Batt_Init(void)
         BatVoltageBuf[i] = MCP3221_GetVoltage();
         delay_ms(1);
     }
-
-    //	for(i = 0; i < BAT_C_FILTER_N + 1; i++)
-    //	{
-    //			BatCurrentBuf[i] = ADC_Value[BAT_C_CHANNEL];
-    //			delay_ms(1);
-    //	}
 }
 /**********************************************************************************************************
 *函 数 名: Voltage_RecursionFilter
 *功能说明: 电压ADC采集原始数据均值滤波
-*形    参: uint32_t *filterbuf      uint32_t ADValue 
-*              电压总数组               新采集的数据  
-*              
+*形    参: uint32_t *filterbuf      uint32_t ADValue
+*              电压总数组               新采集的数据
+*
 *返 回 值: 均值滤波后的电压原始值
 **********************************************************************************************************/
 static float Voltage_RecursionFilter(float *filterbuf, float input_vol)
@@ -50,9 +52,9 @@ static float Voltage_RecursionFilter(float *filterbuf, float input_vol)
 /**********************************************************************************************************
 *函 数 名: Current_RecursionFilter
 *功能说明: 电流ADC采集原始数据均值滤波
-*形    参: uint32_t *filterbuf      uint32_t ADValue 
-*             电流总数组               新采集的数据  
-*              
+*形    参: uint32_t *filterbuf      uint32_t ADValue
+*             电流总数组               新采集的数据
+*
 *返 回 值: 均值滤波后的电流原始值
 **********************************************************************************************************/
 static uint32_t Current_RecursionFilter(uint32_t *filterbuf, uint32_t ADValue)
@@ -71,8 +73,8 @@ float adcVoltage = 0;
 
 /**********************************************************************************************************
 *函 数 名: GetVoltage
-*功能说明: 获取电池电压  (  110k   
-*形    参: 无                10K       11:1   
+*功能说明: 获取电池电压  (  110k
+*形    参: 无                10K       11:1
 *返 回 值: 电压值        )
 **********************************************************************************************************/
 float GetVoltage(void)
@@ -103,8 +105,8 @@ float    GetCurrent(void) //电流值均值滤波
 /**********************************************************************************************************
 *函 数 名: Get_BattData
 *功能说明: 传递电压电流结构体
-*形    参: PowerMsg_t 
-*返 回 值: 无 
+*形    参: PowerMsg_t
+*返 回 值: 无
 **********************************************************************************************************/
 void Get_BattData(PowerMsg_t *BattStruct)
 {

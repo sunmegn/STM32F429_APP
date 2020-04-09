@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
  * @LastEditors:Robosea
- * @LastEditTime:2020-02-26 11:49:02
+ * @LastEditTime:2020-04-03 18:05:34
  * @brief         :
  */
 
@@ -11,8 +11,8 @@
 #include "Kalman_filtering.h"
 #include "math.h"
 #include "Object.h"
-
-extern float KxCompToRoll;
+extern float   KxCompToRoll;
+extern uint8_t g_nowWokeMode;
 
 NLPID_Typedef       YawNLPID;
 NLPID_Typedef       DeepNLPID;
@@ -22,6 +22,9 @@ CloseLoopPID_t      rollPID;
 CloseLoopPID_t      depthPID;
 ControlParam_t      myctrlparam;
 CtrlFeedBackParam_t ctrlreback;
+
+float  SetTmpPressure = 0;
+int8_t flag           = 0;
 
 //short front_back_rocker = 0;                        //左边 - 前后摇杆位置
 //short left_right_rocker = 0;                        //左边 - 左右摇杆位置
@@ -62,7 +65,7 @@ SOTF_typeDef CloseLoopUD;
 /**
  * @name:  ControlTask_Function
  * @msg: 控制任务函数
- * @param *argument 
+ * @param *argument
  * @return: None
  */
 void ControlTask_Function(void const *argument)
@@ -79,92 +82,104 @@ void ControlTask_Function(void const *argument)
 #ifdef DEBUG
 
 #else
-        if (xQueueReceive(Control_Message_Queue, &myctrlparam, 1))
-        {
-            // 摇杆通道赋值
-            ctrlpara_data.fb_rocker   = myctrlparam.FB_rocker;   //前后，前正后负
-            ctrlpara_data.lr_rocker   = myctrlparam.LR_rocker;   //左拐右拐，左负右正
-            ctrlpara_data.ud_rocker   = myctrlparam.UD_rocker;   //上浮下潜，上正下负
-            ctrlpara_data.turn_rocker = myctrlparam.TURN_rocker; //左右平移，左负右正
 
-            g_runMode = myctrlparam.isRunMode;
-        }
-
-        if (g_LostPC) //若通信丢失则将控制模式调整为手动模式，且将摇杆值均设为0
+        if (g_nowWokeMode == NOMALMODE)
         {
-            doLostHeartBeat();
-        }
-        //		AllRocker_Init(yawPID.OutP,0.02,200,-1000,1000);
-        TottleCro.Ty    = RockerValDispose(&RockerLimOY, myctrlparam.FB_rocker * 10.0, 5, 100);
-        TottleCro.Tx    = RockerValDispose(&RockerLimOX, myctrlparam.LR_rocker * 10.0, 5, 100);
-        TottleCro.Tz    = RockerValDispose(&RockerLimZO, myctrlparam.UD_rocker * 10.0, 5, 100);
-        TottleCro.Tyaw  = RockerValDispose(&RockerLimOYAW, myctrlparam.TURN_rocker * 10.0, 5, 100);
-        TottleCro.Tpith = 0;
-        TottleCro.Tx    = TottleCro.Tx * 0.5;
-        roll_ref        = -4.6;
-        if ((g_runMode & 0x04) || (g_runMode & 0x02)) //入水判断myctrlparam.depth > 5
-        {
-            TottleCro.Troll = NLPID_Control(&RollNLPID, myctrlparam.roll, myctrlparam.grayX, roll_ref);
-        }
-        else
-        {
-            NLPID_Clear(&RollNLPID);
-            TottleCro.Troll = 0;
-        }
-
-        /* 定航 */
-        if (g_runMode & 0x04)
-        {
-            if (fabs(myctrlparam.TURN_rocker) > 0)
+            if (xQueueReceive(Control_Message_Queue, &myctrlparam, 1))
             {
-                heading_ref = myctrlparam.yaw + YAWCODE2ANG(RockerLimit(myctrlparam.TURN_rocker * 1.0, 20, -100, 100)); //将输入摇杆值转换成角度，并计算当前需要的航向值
+                // 摇杆通道赋值
+                ctrlpara_data.fb_rocker   = myctrlparam.FB_rocker;   //前后，前正后负
+                ctrlpara_data.lr_rocker   = myctrlparam.LR_rocker;   //左拐右拐，左负右正
+                ctrlpara_data.ud_rocker   = myctrlparam.UD_rocker;   //上浮下潜，上正下负
+                ctrlpara_data.turn_rocker = myctrlparam.TURN_rocker; //左右平移，左负右正
+                g_runMode                 = myctrlparam.isRunMode;
             }
 
-            if (heading_ref > 180)
+            if (g_LostPC) //若通信丢失则将控制模式调整为手动模式，且将摇杆值均设为0
             {
-                heading_ref -= 360;
+                doLostHeartBeat();
             }
-            if (heading_ref < -180)
+            //		AllRocker_Init(yawPID.OutP,0.02,200,-1000,1000);
+            TottleCro.Ty    = RockerValDispose(&RockerLimOY, myctrlparam.FB_rocker * 10.0, 5, 100);
+            TottleCro.Tx    = RockerValDispose(&RockerLimOX, myctrlparam.LR_rocker * 10.0, 5, 100);
+            TottleCro.Tz    = RockerValDispose(&RockerLimZO, myctrlparam.UD_rocker * 10.0, 5, 100);
+            TottleCro.Tyaw  = RockerValDispose(&RockerLimOYAW, -1 * myctrlparam.TURN_rocker * 10.0, 5, 100);
+            TottleCro.Tpith = 0;
+            //            TottleCro.Tx    = TottleCro.Tx * 0.5; //转向限速
+            //            roll_ref        = -4.6;
+            if ((g_runMode & 0x04) || (g_runMode & 0x02)) //入水判断myctrlparam.depth > 5
             {
-                heading_ref += 360;
+                TottleCro.Troll = NLPID_Control(&RollNLPID, myctrlparam.roll, myctrlparam.grayX, roll_ref);
             }
-            ctrlpara_data.pid_head = heading_ref;
-            TottleCro.Tyaw         = YAWPID_Control(&YawNLPID, myctrlparam.yaw, myctrlparam.grayZ, heading_ref); //heading_ref
-        }
-        else
-        {
-            NLPID_Clear(&YawNLPID);
-            heading_ref = myctrlparam.yaw;
-        }
-
-        //深度控制
-        if (g_runMode & 0x02) //&&(fabs(up_down_rocker)<40)
-        {
-            if (fabs(myctrlparam.UD_rocker) > 0)
+            else
             {
-                //					depth_ref = myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker*1.0,20,-100,100));//满速1m/s
-                depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 1.0, 20, -100, 100)));
+                NLPID_Clear(&RollNLPID);
+                TottleCro.Troll = 0;
             }
 
-            if (depth_ref < 5)
+            /* 定航 */
+            if (g_runMode & 0x04)
             {
-                depth_ref = 5;
-            }
-            ctrlpara_data.pid_updown = depth_ref * 0.1;
-            //计算输出力
-            TottleCro.Tz = NLPID_Control(&DeepNLPID, myctrlparam.depth - 17.5 * sinf(myctrlparam.pitch * PI / 180), k_speed, depth_ref); //myctrlparam.UD_rocker*0.005 depth_ref,depthspeed深度为厘米单位depth_ref
-        }
-        else
-        {
-            NLPID_Clear(&DeepNLPID);
-            depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth);
-        }
+                if (fabs(myctrlparam.TURN_rocker) > 0)
+                {
+                    heading_ref = myctrlparam.yaw + YAWCODE2ANG(RockerLimit(-1 * myctrlparam.TURN_rocker, 20, -100, 100)); //将输入摇杆值转换成角度，并计算当前需要的航向值
+                }
 
-        //控制输出
-        ThrottleToForceControl(Closestate, TottleCro.Tx, TottleCro.Ty, TottleCro.Tz, TottleCro.Tyaw, TottleCro.Tpith, TottleCro.Troll, myctrlparam.yaw, myctrlparam.pitch, myctrlparam.roll);
-        vTaskDelayUntil(&tick, 20);
+                if (heading_ref > 180)
+                {
+                    heading_ref -= 360;
+                }
+                if (heading_ref < -180)
+                {
+                    heading_ref += 360;
+                }
+                ctrlpara_data.pid_head = heading_ref;
+                TottleCro.Tyaw         = YAWPID_Control(&YawNLPID, 1 * myctrlparam.yaw, myctrlparam.grayZ, heading_ref); //heading_ref
+            }
+            else
+            {
+                NLPID_Clear(&YawNLPID);
+                heading_ref = myctrlparam.yaw;
+            }
+
+            //深度控制
+            if (g_runMode & 0x02) //&&(fabs(up_down_rocker)<40)
+            {
+                if (fabs(myctrlparam.UD_rocker) > 0)
+                {
+                    //					depth_ref = myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker*1.0,20,-100,100));//满速1m/s
+                    depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 1.0, 20, -100, 100)));
+                }
+
+                if (depth_ref < 0)
+                {
+                    depth_ref = 0;
+                }
+                if (flag == 1)
+                {
+                    depth_ref = SetTmpPressure;
+                }
+                ctrlpara_data.pid_updown = depth_ref * 0.1;
+                //计算输出力
+                TottleCro.Tz = NLPID_Control(&DeepNLPID, myctrlparam.depth, k_speed, depth_ref); //myctrlparam.UD_rocker*0.005 depth_ref,depthspeed深度为厘米单位depth_ref
+                // TottleCro.Tz = NLPID_Control(&DeepNLPID, myctrlparam.depth - 17.5 * sinf(myctrlparam.pitch * PI / 180), k_speed, depth_ref); //myctrlparam.UD_rocker*0.005 depth_ref,depthspeed深度为厘米单位depth_ref
+            }
+            else
+            {
+                NLPID_Clear(&DeepNLPID);
+                depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth);
+            }
+
+            //控制输出
+            ThrottleToForceControl(Closestate, TottleCro.Tx, TottleCro.Ty, TottleCro.Tz, TottleCro.Tyaw, TottleCro.Tpith, TottleCro.Troll, myctrlparam.yaw, myctrlparam.pitch, myctrlparam.roll);
+            vTaskDelayUntil(&tick, 20);
 #endif
     }
+    else
+    {
+        osDelay(500);
+    }
+}
 }
 
 float YawErrorDispose(float now, float obj)
@@ -459,7 +474,7 @@ void NLPID_Init(void)
     DeepNLPID.OIntf.den[1] = 0;
     DeepNLPID.OIntf.den[2] = 0;
     /*********/
-    DeepNLPID.OP      = 0.025; //0.01;//0.02;//4;//0.215;//0.6;0.15,0.0043
+    DeepNLPID.OP      = 2;     //0.01;//0.02;//4;//0.215;//0.6;0.15,0.0043
     DeepNLPID.OI      = 0.003; //0.0003;//0.05;//0.25;//0.25;//0.1;0.005
     DeepNLPID.OD      = 0.0;
     DeepNLPID.OeImax  = 500; //100

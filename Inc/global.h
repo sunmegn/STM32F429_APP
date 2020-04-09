@@ -5,7 +5,7 @@
  * @LastEditors: Robosea
  * @LastEditTime: 2020-02-22 22:06:27
  * @FilePath        : \ROV_F429_APP-10-10\Inc\global.h
- * @brief           : 
+ * @brief           :
  */
 
 #ifndef __GLOBAL_H
@@ -28,6 +28,7 @@
 #define DEBUGMODE       0x01 //调试模式
 #define TESTMODE        0x02 //推进器中值标定模式
 #define NOMALMODE       0x03 //正常模式
+#define MANIPULATOR_MID 1550 //机械臂中值
 
 typedef unsigned char  u8;
 typedef unsigned short u16;

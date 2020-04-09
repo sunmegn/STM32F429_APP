@@ -134,7 +134,7 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4100</DriverSelection>
+            <DriverSelection>4101</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
@@ -274,8 +274,8 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x8000000</StartAddress>
-                <Size>0x60000</Size>
+                <StartAddress>0x8010000</StartAddress>
+                <Size>0x70000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -871,11 +871,6 @@
               <FileName>Object.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\MESSAGE\Object.c</FilePath>
-            </File>
-            <File>
-              <FileName>MTLINK_V1.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>..\USER\MESSAGE\MTLINK_V1.lib</FilePath>
             </File>
           </Files>
         </Group>

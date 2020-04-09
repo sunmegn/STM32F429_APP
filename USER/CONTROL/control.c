@@ -3,18 +3,19 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
  * @LastEditors:Robosea
- * @LastEditTime:2020-02-26 12:00:05
+ * @LastEditTime:2020-03-24 19:54:58
  * @brief         :电机控制函数组
  */
 #include "control.h"
 #include "stmflash.h"
 #define DogMax_WaitTimes 100
 //static ControlMsg_t control_data;
+int               RoboHand_Pwm = MANIPULATOR_MID;
 int               DogBeatCount = DogMax_WaitTimes;
 ROV_FValuetypedef ROV_Val;
 u8                motorcalflag = 0; //是否进行电机PWM标定
-uint16_t          para_pwm[6]  = {1500, 1500, 1500, 1500, 1500, 1500};
 CtrlPara_t        ctrlpara_data;
+extern uint16_t   motorpwmset[6];
 
 /**
  * @function_name:CtrlMidPwmInit
@@ -81,7 +82,7 @@ u8 DogHeardBeat(void)
   * @funNm	sign符号函数
   * @brief  输入值取符号 返回±1
   * @param	x:输入float型数据
-  * @retval x > 0 return 1 x < 0 return -1 x = 0 return 0 
+  * @retval x > 0 return 1 x < 0 return -1 x = 0 return 0
   */
 float sign(float x)
 {
@@ -188,10 +189,10 @@ float OwnForceX(float Tang, float f1, float f2, float f3, float f4)
   * @funNm  OwnForceY
   * @brief  根据每个推进器实际推力计算自身YO方向产生的推力
   * @param	Tang:推进器装配角度
-  * @param	f1:T1推力 
-  * @param	f2:T2推力 
-  * @param	f3:T3推力 
-  * @param	f4:T4推力 
+  * @param	f1:T1推力
+  * @param	f2:T2推力
+  * @param	f3:T3推力
+  * @param	f4:T4推力
   * @retval float:返回计算后推力大小
   */
 float OwnForceY(float Tang, float f1, float f2, float f3, float f4)
@@ -203,8 +204,8 @@ float OwnForceY(float Tang, float f1, float f2, float f3, float f4)
 /**
   * @funNm  OwnForceZ
   * @brief  根据每个推进器实际推力计算自身ZO方向产生的推力
-  * @param	f5:T5推力  
-  * @param	f6:T6推力 
+  * @param	f5:T5推力
+  * @param	f6:T6推力
 * @retval float:返回计算后推力大小
   */
 float OwnForceZ(float f5, float f6)
@@ -329,7 +330,7 @@ float ActiveForRoll(float froll, float *F)
   * @param	f:推力大小
   * @param	PorN:正桨还是反桨 1：正桨 -1：反桨
   * @param	offset:基准0值
-  * @retval uint16:PWM值(限幅1500-2500) 
+  * @retval uint16:PWM值(限幅1500-2500)
   */
 uint16_t ForceToESC(float f, float PorN, float offset)
 {
@@ -363,9 +364,9 @@ uint16_t PROP1, PROP2, PROP3, PROP4, PROP5, PROP6;
   * @funNm  Cal6FreedomForceValue
   * @brief  根据每个推进器计算六自由度的推力范围 并写到ROV_VAL结构体中
   * @param	Tang:推进器相对x轴角度
-  * @param	Tmin:最小推力(Tmin < 0 负推力) 
-  * @param	Tmax:最大推力Tmax > 0 正推力 
-  * @retval void 
+  * @param	Tmin:最小推力(Tmin < 0 负推力)
+  * @param	Tmax:最大推力Tmax > 0 正推力
+  * @retval void
   */
 void Cal6FreedomForceValue(float Tang, float Tmin, float Tmax)
 {
@@ -388,8 +389,8 @@ void Cal6FreedomForceValue(float Tang, float Tmin, float Tmax)
   * @funNm  GetThrottleKpower
   * @brief  计算政府油门占单侧油门的比例
   * @param	x:输入油门
-  * @param	min:幅最大油门min < 0 
-  * @param	max:正最大油门 max > 0 
+  * @param	min:幅最大油门min < 0
+  * @param	max:正最大油门 max > 0
   * @retval 返回油门比例
   */
 float GetThrottleKpower(float x, float min, float max)
@@ -418,10 +419,10 @@ float GetThrottleKpower(float x, float min, float max)
   * @param	yaw:当前yaw角
   * @param	pitch:当前pitch角
   * @param	roll:当前roll角
-  * @retval void 
+  * @retval void
   * @以下为控制量输出与推进器对应关系
   *        ∧                        ∧
-  *        |                        | 
+  *        |                        |
   *     1  |  2                   4 | 1
   *   5---------6              5---------2
   *     3  |  4                   6 | 3
@@ -524,12 +525,12 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
     if (motorcalflag)
     {
         //进行版本转换，不同电机编号对应
-        PROP1 = para_pwm[0];
-        PROP2 = para_pwm[3];
-        PROP3 = para_pwm[2];
-        PROP4 = para_pwm[5];
-        PROP5 = para_pwm[1];
-        PROP6 = para_pwm[4];
+        PROP1 = motorpwmset[0];
+        PROP2 = motorpwmset[3];
+        PROP3 = motorpwmset[5];
+        PROP4 = motorpwmset[2];
+        PROP5 = motorpwmset[1];
+        PROP6 = motorpwmset[4];
     }
     else
     {
@@ -539,12 +540,6 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
         PROP4 = ForceToESC(BufFoxy[4] + BufFzo[4] + BufFyaw[4] + BufFpitch[4] + BufFroll[4], -1, Mid_pwm[5]); //右后
         PROP5 = ForceToESC(BufFoxy[5] + BufFzo[5] + BufFyaw[5] + BufFpitch[5] + BufFroll[5], -1, Mid_pwm[1]); //左中
         PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], -1, Mid_pwm[4]); //右中
-        // PROP1 = ForceToESC(BufFoxy[1] + BufFzo[1] + BufFyaw[1] + BufFpitch[1] + BufFroll[1], 1, Mid_pwm[0]); //左前
-        // PROP2 = ForceToESC(BufFoxy[2] + BufFzo[2] + BufFyaw[2] + BufFpitch[2] + BufFroll[2], 1, Mid_pwm[3]); //右前
-        // PROP3 = ForceToESC(BufFoxy[3] + BufFzo[3] + BufFyaw[3] + BufFpitch[3] + BufFroll[3], 1, Mid_pwm[2]); //左后
-        // PROP4 = ForceToESC(BufFoxy[4] + BufFzo[4] + BufFyaw[4] + BufFpitch[4] + BufFroll[4], 1, Mid_pwm[5]); //右后
-        // PROP5 = ForceToESC(BufFoxy[5] + BufFzo[5] + BufFyaw[5] + BufFpitch[5] + BufFroll[5], 1, Mid_pwm[1]); //左中
-        // PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], 1, Mid_pwm[4]); //右中
     }
 
     IIR_2OrderLpf_Init(&FLpfPWM5, 50, 4);
@@ -558,7 +553,7 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
                                                            //	pca_setpwm(UR_MOTOR,0,PROP6);//YOU
     pca_setpwm(UL_MOTOR, 0, SOTFOutput(&FLpfPWM5, PROP5)); //ZUO //FIXME SOTFOutput返回值为float,pca_setpwm输入参数为u32
     pca_setpwm(UR_MOTOR, 0, SOTFOutput(&FLpfPWM6, PROP6)); //YOU
-
+    MANIPULATOR_VAL(RoboHand_Pwm);                         //机械手
     ctrlpara_data.FR_val = PROP2;
     ctrlpara_data.FL_val = PROP1;
     ctrlpara_data.BR_val = PROP4;
@@ -580,7 +575,7 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
   * @param	yaw:当前yaw角
   * @param	pitch:当前pitch角
   * @param	roll:当前roll角
-  * @retval void 
+  * @retval void
   */
 void ThrottleToForceControl(bool Closestate, float Tx, float Ty, float Tz, float Tyaw, float Tpitch, float Troll, float yaw, float pitch, float roll)
 {

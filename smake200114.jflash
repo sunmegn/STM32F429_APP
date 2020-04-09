@@ -1,8 +1,8 @@
-  AppVersion = 65601
+  AppVersion = 66203
   FileVersion = 2
 [GENERAL]
   ConnectMode = 0
-  CurrentFile = "F:\desktop\ROV_F429_APP-10-10\smake200114.hex"
+  CurrentFile = "E:\Desktop\ROV_F429_APP-10-10\smake200114.hex"
   DataFileSAddr = 0x00000000
   GUIMode = 0
   HostName = ""
@@ -40,11 +40,20 @@
   EndianMode = 0
   ChipName = "ST STM32F429VE"
 [FLASH]
+  NumBanks = 2
+[FLASH0]
   aRangeSel[1] = 0-7
   BankName = "Internal flash"
   BankSelMode = 1
   BaseAddr = 0x08000000
-  NumBanks = 1
+[FLASH1]
+  aRangeSel[1] = 0-21
+  BankSelMode = 1
+  BaseAddr = 0x08100000
+  CheckId = 3
+  DeviceName = "Am29DL161DB"
+  OrgNumBits = 8
+  OrgNumChips = 1
 [PRODUCTION]
   AutoPerformsErase = 1
   AutoPerformsProgram = 1

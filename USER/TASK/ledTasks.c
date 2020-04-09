@@ -5,15 +5,24 @@
  * @LastEditors   : Robosea
  * @LastEditTime  : 2020-02-21 00:35:19
  * @FilePath      : \ROV_F429_APP-10-10\USER\TASK\ledTasks.c
- * @brief         : 
+ * @brief         :
  */
 
 #include "ledTasks.h"
 #include "iwdg.h"
 #include "global.h"
+#include "MTLink.h"
+#include "stmflash.h"
+#include "IAP.h"
+
 void ledTask_Function(void const *argument)
 {
-    portTickType tick = xTaskGetTickCount();
+    portTickType tick      = xTaskGetTickCount();
+    u8           jump_flag = STMFLASH_Read_Byte(UPDATA_FLAG_ADDR);
+    if (jump_flag != 2)
+    {
+        Jump_To_Bootloader();
+    }
     while (1)
     {
 
@@ -50,6 +59,7 @@ void ledTask_Function(void const *argument)
         HAL_IWDG_Refresh(&hiwdg); //超过两秒不喂狗，复位重启32k，32, 2000
 #endif
         //vTaskDelayUntil(&tick,1000);	//1000/ portTICK_RATE_MS
+        MTLinkPrint(&MTLink_UDP, 0x02, 0x01, "Run In APP...", sizeof("Run In APP..."), 300);
         osDelay(1000);
     }
 }
