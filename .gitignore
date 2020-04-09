@@ -1,0 +1,20 @@
+#STM32 Build
+*.o
+*.d
+*.crf
+*.hex
+*.bin
+*.axf
+*.map
+*.TMP
+*.exe
+*.gch
+*.xml
+*.htm
+*.sct
+*.lnp
+*.dep
+*.iex
+*.rar
+
+
