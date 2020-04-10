@@ -37,13 +37,13 @@ u16                     motorpwmset[6] = {1470, 1470, 1470, 1470, 1470, 1470};
  * @param len:数据长度
  * @return:None
  */
-bool MTLinkDispose(uint8_t SID, uint16_t obj, uint8_t *buf, int len)
+bool MTLinkDispose(uint8_t SID, uint8_t DID,uint16_t obj, uint8_t *buf, int len)
 {
     bool state = false;
     switch (SID)
     {
     case HOST_ID: //可能是PC端上位机传来的数据
-        PC_MasterDispose(obj, buf, len);
+        PC_MasterDispose(false, SID, obj, buf, len);
         break;
     default:
         break;
@@ -59,7 +59,7 @@ bool MTLinkDispose(uint8_t SID, uint16_t obj, uint8_t *buf, int len)
  * @param len:数据长度
  * @return:None
  */
-bool PC_MasterDispose(uint16_t obj, uint8_t *buf, int len)
+bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int len)
 {
     u8 rxbuf[100];
 
@@ -80,8 +80,8 @@ bool PC_MasterDispose(uint16_t obj, uint8_t *buf, int len)
         break;
     case CMD_VERSION_ID: //      		0x2002
         //返回软件版本号
-        LoadVersion(&MyVersion, 1.0, "shaoyg", 2019, 7, 22, 12, 23);
-        MTLink_Encode(&MTLink_UDP, My_ID, HOST_ID, 0 /*不需要应答*/, SOFTVERSION_ID, (uint8_t *)&MyVersion, sizeof(AUV_Version_Typedef), 10);
+        LoadVersion(&MyVersion, 1.0, "smake", 2020, 4, 10, 12, 23);
+        MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, SOFTVERSION_ID, (uint8_t *)&MyVersion, sizeof(AUV_Version_Typedef), 10);
         break;
     case CMD_BOOTLOAD_ID: //        	0x2004
                           //跳转到BootLoader
@@ -124,7 +124,7 @@ bool PC_MasterDispose(uint16_t obj, uint8_t *buf, int len)
         u8 flag = rxbuf[0];
         switch (flag)
         {
-        case 1:
+        case 3:
             // 上位机暂时没有该显示功能
             STMFLASH_Read(PARAMADDR, motorpwmset, 6);
             motorcalflag = 0;
@@ -138,7 +138,7 @@ bool PC_MasterDispose(uint16_t obj, uint8_t *buf, int len)
             motorpwmset[5] = (rxbuf[12] << 8) + rxbuf[11];
             motorcalflag   = 1;
             break;
-        case 3:
+        case 1:
             STMFLASH_Erase_DATA(23); //擦除数据存储区
             osDelay(100);
             STMFLASH_Write(PARAMADDR, motorpwmset, 6);

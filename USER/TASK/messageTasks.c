@@ -197,7 +197,7 @@ void MessageTask_Function(void const *argument)
         RovInfo_msg.PressureData.Depth    = pressure_data.depth;
         RovInfo_msg.PressureData.Depspeed = 1;
         /* 上传 */
-        MTLink_Encode(&MTLink_UDP, My_ID, HOST_ID, 0 /*不需要应答*/, DEVHEARTBEAT_ID, (uint8_t *)&RovInfo_msg, sizeof(RovInfo_msg), 10);
+        MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, DEVHEARTBEAT_ID, (uint8_t *)&RovInfo_msg, sizeof(RovInfo_msg), 10);
 
         /* 接收 */
         if (xQueueReceive(MTLinkUDPRxQueue, &len, 5) == pdTRUE)
@@ -209,7 +209,7 @@ void MessageTask_Function(void const *argument)
         }
 
 #endif
-        vTaskDelayUntil(&tick, 20);
+        vTaskDelayUntil(&tick, 30);
     }
 }
 

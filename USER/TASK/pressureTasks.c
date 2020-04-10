@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:48
  * @LastEditors:Robosea
- * @LastEditTime:2020-02-22 22:37:28
+ * @LastEditTime:2020-04-09 20:05:07
  * @FilePath      :\ROV_F429_APP-10-10\USER\TASK\pressureTasks.c
  * @brief         :压力控制任务函数
  */
@@ -35,9 +35,9 @@ void pressureTask_Function(void const *argument)
 }
 
 /***
- * @function_name: 
- * @brief: 
- * @param {type} 
+ * @function_name:
+ * @brief:
+ * @param {type}
  * @return: None
  */
 PressureMsg_t get_PressureData() { return pressure_raw; }

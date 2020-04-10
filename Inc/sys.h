@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : CAN.h
+  * File Name          : SYS.h
   * Description        : This file provides code for the configuration
-  *                      of the CAN instances.
+  *                      of the SYS instances.
   ******************************************************************************
   * @attention
   *
@@ -17,8 +17,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __can_H
-#define __can_H
+#ifndef __sys_H
+#define __sys_H
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -30,13 +30,11 @@
 
 /* USER CODE END Includes */
 
-extern CAN_HandleTypeDef hcan1;
-
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_CAN1_Init(void);
+void MX_SYS_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -45,7 +43,7 @@ void MX_CAN1_Init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ can_H */
+#endif /*__ sys_H */
 
 /**
   * @}

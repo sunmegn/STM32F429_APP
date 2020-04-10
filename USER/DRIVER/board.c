@@ -7,6 +7,8 @@
  * @brief         :
  */
 #include "board.h"
+#include "udp.h"
+
 QueueHandle_t IMU_Message_Queue      = NULL;
 QueueHandle_t Control_Message_Queue  = NULL;
 QueueHandle_t Command_Message_Queue  = NULL;
@@ -139,7 +141,7 @@ void BSP_Init(void)
     MS5837_Init();            //压传
     SHT35_Init();             //舱内温湿度
     Batt_Init();              //电源 电压、电流
-    W5500_Init();             //W5500 UDP通信
+    Udp_Init();             //W5500 UDP通信
     IMU_Init();               //惯导模块
     PWM_Init();               //LED大灯PWM
     MessageInit();

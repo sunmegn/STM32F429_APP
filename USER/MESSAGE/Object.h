@@ -36,19 +36,6 @@
 #define CMD_DEPTHPID_ID    0x6003
 #define CMD_ROLLPID_ID     0x6004
 
-//const u16 CMD_CONTROLMODE_ID = 0x3000;
-//const u16 CMD_CONTROL_ID = 0x3001;
-//const u16 CMD_LIGHT_ID = 0x3002;
-//const u16 CMD_HAND_ID = 0x3003;
-//const u16 CMD_CAMERA_ID = 0x3004;
-//const u16 CMD_TARGETVAL_ID = 0x3005;
-
-//const u16 CMD_CALIBRATION_ID = 0x6000;
-//const u16 CMD_SAVECAL_ID = 0x6001;
-//const u16 CMD_YAWPID_ID = 0x6002;
-//const u16 CMD_DEPTHPID_ID = 0x6003;
-//const u16 CMD_ROLLPID_ID = 0x6004;
-
 #define CMD_HOSTHEARTBEAT_ID 0xF000
 #define CMD_BOOTBINDATA_ID   0xF002
 
@@ -67,6 +54,5 @@
 #define CAMRAMOTOR_POS(val)  set_pos(val);                                         //相机舵机
 #define GETPWMVAL0_100(val)  ((val - 50) * 10 + 1500)                              //计算camera舵机中值
 
-bool PC_MasterDispose(uint16_t obj, uint8_t *buf, int len);
-
+bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int len);
 #endif

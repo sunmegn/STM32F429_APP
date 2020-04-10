@@ -23,12 +23,11 @@
 #include "stm32f4xx_it.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "Kalman_filtering.h"
-#include "includes.h"
-extern IMUMsg_t IMU_raw_data;
-extern PressureMsg_t pressure_raw;
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "Kalman_filtering.h"
+#include "imuTasks.h"
+#include "pressureTasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,7 +37,7 @@ extern PressureMsg_t pressure_raw;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- 
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -72,7 +71,8 @@ extern UART_HandleTypeDef huart3;
 extern TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN EV */
-
+extern PressureMsg_t pressure_raw;
+extern IMUMsg_t      IMU_raw_data;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -205,33 +205,33 @@ void DMA1_Stream6_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
-    
-    static int number = 0;
-    static float value = 0.f;
-    static int flag = 0;
-    
-    k_speed = Kalman_Filter_speed(&kalman_speed,pressure_raw.depth,accRawData,IMU_raw_data);
-    
-    speed_task(accRawData,IMU_raw_data);
-//    if(number >= 100)
-//    {
-//        if(flag == 0)
-//        {
-//            acc_middle = value / 100.f;
-//            flag = 1;
-//        }
-//        
-//    }
-//    else 
-//    {
-//        if(acc < 1.f && acc > -1.f)
-//        {
-//            value += acc;
-//            number++;
-//        }
-//        
-//    } 
-    
+
+    static int   number = 0;
+    static float value  = 0.f;
+    static int   flag   = 0;
+
+    k_speed = Kalman_Filter_speed(&kalman_speed, pressure_raw.depth, accRawData, IMU_raw_data);
+
+    speed_task(accRawData, IMU_raw_data);
+    //    if(number >= 100)
+    //    {
+    //        if(flag == 0)
+    //        {
+    //            acc_middle = value / 100.f;
+    //            flag = 1;
+    //        }
+    //
+    //    }
+    //    else
+    //    {
+    //        if(acc < 1.f && acc > -1.f)
+    //        {
+    //            value += acc;
+    //            number++;
+    //        }
+    //
+    //    }
+
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
@@ -301,7 +301,7 @@ void DMA2_Stream1_IRQHandler(void)
 void UART8_IRQHandler(void)
 {
   /* USER CODE BEGIN UART8_IRQn 0 */
-  USER_UART_IRQHandler(&huart8);
+    USER_UART_IRQHandler(&huart8);
   /* USER CODE END UART8_IRQn 0 */
   HAL_UART_IRQHandler(&huart8);
   /* USER CODE BEGIN UART8_IRQn 1 */

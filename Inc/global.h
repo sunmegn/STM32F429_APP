@@ -20,7 +20,8 @@
 #include "task.h"
 #define M_PI 3.1415926
 
-#define My_ID           2
+#define MY_ID           2
+#define CAN_IMU_ID 		3
 #define HOST_ID         1
 #define FREE_ID         255
 #define DEVHEARTBEAT_ID 0xF001

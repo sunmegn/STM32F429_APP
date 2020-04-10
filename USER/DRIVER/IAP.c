@@ -1,6 +1,5 @@
 #include "IAP.h"
 
-
 pFunction JumpToApplication;
 uint32_t  JumpFlag __attribute__((at(JUMP_FLAG_ADDER)));
 
