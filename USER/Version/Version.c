@@ -4,7 +4,7 @@ AUV_Version_Typedef MyVersion;
 
 void LoadVersion(AUV_Version_Typedef *ver,float num,char* name,int years,int month,int date,int Hours,int minute)
 {
-	sprintf(ver->VersionName,"15Kg ROV-Version:");
+	sprintf(ver->VersionName,"20Kg ROV-Version:");
 	sprintf(ver->num,"%0.1f",num);
 	sprintf(ver->Name,"%s",name);
 	sprintf(ver->Date,"%d-%d-%d",years,month,date);

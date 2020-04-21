@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors:Robosea
- * @LastEditTime:2020-04-03 18:05:34
+ * @LastEditors:smake
+ * @LastEditTime:2020-04-18 16:15:24
  * @brief         :
  */
 
@@ -11,6 +11,8 @@
 #include "Kalman_filtering.h"
 #include "math.h"
 #include "Object.h"
+#include "stmflash.h"
+
 extern float   KxCompToRoll;
 extern uint8_t g_nowWokeMode;
 
@@ -22,18 +24,10 @@ CloseLoopPID_t      rollPID;
 CloseLoopPID_t      depthPID;
 ControlParam_t      myctrlparam;
 CtrlFeedBackParam_t ctrlreback;
+float               SetTmpPressure = 0;
+int8_t              flag           = 0;
+AllPIDArg_typedef   AllPIDArgument;
 
-float  SetTmpPressure = 0;
-int8_t flag           = 0;
-
-//short front_back_rocker = 0;                        //左边 - 前后摇杆位置
-//short left_right_rocker = 0;                        //左边 - 左右摇杆位置
-//short up_down_rocker = 0;                           //右边 - 上下摇杆位置
-//short left_right_adjust_rock = 0;                   //右边 - 左右摇杆位置
-//float depth_Now = 0;                                //当前深度值
-//float heading_Now = 0;                              //当前航向
-
-//static ControlMsg_t   control_data;                   //控制消息
 Tottle_Crotypedef TottleCro;
 float             heading_ref = 0, depth_ref = 0, roll_ref = 0; //,depthspeedref = 0.0,yawspeedref = 0.0;
 extern CtrlPara_t ctrlpara_data;
@@ -71,6 +65,7 @@ SOTF_typeDef CloseLoopUD;
 void ControlTask_Function(void const *argument)
 {
     portTickType tick = xTaskGetTickCount();
+    // AllPIDArgument = ;//TODO 修正从flash读写PID值
     NLPID_Init();
     Cal6FreedomForceValue(30, PROPFMin, PROPFMax);
     AllRocker_Init(500, 0.02, 200, -1000, 1000); //摇杆值转化成力函数参数初始化,限制死区，极值。
@@ -79,10 +74,6 @@ void ControlTask_Function(void const *argument)
     while (1)
     {
         run_time[4] = getRunTime(4);
-#ifdef DEBUG
-
-#else
-
         if (g_nowWokeMode == NOMALMODE)
         {
             if (xQueueReceive(Control_Message_Queue, &myctrlparam, 1))
@@ -94,7 +85,6 @@ void ControlTask_Function(void const *argument)
                 ctrlpara_data.turn_rocker = myctrlparam.TURN_rocker; //左右平移，左负右正
                 g_runMode                 = myctrlparam.isRunMode;
             }
-
             if (g_LostPC) //若通信丢失则将控制模式调整为手动模式，且将摇杆值均设为0
             {
                 doLostHeartBeat();
@@ -116,7 +106,6 @@ void ControlTask_Function(void const *argument)
                 NLPID_Clear(&RollNLPID);
                 TottleCro.Troll = 0;
             }
-
             /* 定航 */
             if (g_runMode & 0x04)
             {
@@ -147,7 +136,6 @@ void ControlTask_Function(void const *argument)
             {
                 if (fabs(myctrlparam.UD_rocker) > 0)
                 {
-                    //					depth_ref = myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker*1.0,20,-100,100));//满速1m/s
                     depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 1.0, 20, -100, 100)));
                 }
 
@@ -173,13 +161,12 @@ void ControlTask_Function(void const *argument)
             //控制输出
             ThrottleToForceControl(Closestate, TottleCro.Tx, TottleCro.Ty, TottleCro.Tz, TottleCro.Tyaw, TottleCro.Tpith, TottleCro.Troll, myctrlparam.yaw, myctrlparam.pitch, myctrlparam.roll);
             vTaskDelayUntil(&tick, 20);
-#endif
+        }
+        else
+        {
+            osDelay(100);
+        }
     }
-    else
-    {
-        osDelay(500);
-    }
-}
 }
 
 float YawErrorDispose(float now, float obj)
@@ -284,11 +271,10 @@ float NLPID_Control(NLPID_Typedef *nl, float Onow, float Inow, float obj)
     //仅使用内环
     {
         SOTFOutput(&nl->Oouttf, obj);
-        nl->Ie  = nl->Oouttf.yk - nl->Ifbtf.yk;
-        nl->Ie1 = ((nl->Oouttf.yk - nl->Oouttf.yk_2) - (nl->Ifbtf.yk - nl->Ifbtf.yk_2)) / nl->T;
-        nl->IeI = nl->IeI + nl->Ie * nl->T;                        //积分
-        nl->IeI = SetValf32(nl->IeI, -1 * nl->IeImax, nl->IeImax); //限幅
-                                                                   //		nl->Ioutput=nl->IP*nl->Ie+nl->II*nl->IeI+nl->ID*nl->Ie1;
+        nl->Ie      = nl->Oouttf.yk - nl->Ifbtf.yk;
+        nl->Ie1     = ((nl->Oouttf.yk - nl->Oouttf.yk_2) - (nl->Ifbtf.yk - nl->Ifbtf.yk_2)) / nl->T;
+        nl->IeI     = nl->IeI + nl->Ie * nl->T;                        //积分
+        nl->IeI     = SetValf32(nl->IeI, -1 * nl->IeImax, nl->IeImax); //限幅
         nl->Ioutput = nl->IP * NLfal(nl->Ie, nl->falnum, nl->INVal) +
                       nl->II * nl->IeI +
                       nl->ID * NLfal(nl->Ie1, nl->falnum / 2, nl->INVal);

@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F429xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;   ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;   ../Drivers/CMSIS/Include;   ..\MDK-ARM;   ../Middlewares/Third_Party/FreeRTOS/Source/include;   ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;   ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;   ..\USER;   ..\USER\CONTROL;   ..\USER\DRIVER;   ..\USER\MATH;   ..\USER\MESSAGE;   ..\USER\TASK;   ..\USER\W5500;   ..\USER\STMFLASH;   ..\USER\Version</IncludePath>
+              <IncludePath>../Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;   ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;   ../Drivers/CMSIS/Include;   ..\MDK-ARM;   ../Middlewares/Third_Party/FreeRTOS/Source/include;   ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;   ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;   ..\USER;   ..\USER\CONTROL;   ..\USER\DRIVER;   ..\USER\MATH;   ..\USER\MESSAGE;   ..\USER\TASK;   ..\USER\W5500;   ..\USER\STMFLASH;   ..\USER\Version;   ..\USER\CANNetwork</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -433,16 +433,6 @@
               <FilePath>../Src/spi.c</FilePath>
             </File>
             <File>
-              <FileName>sys.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/sys.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_hal_timebase_tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/stm32f4xx_hal_timebase_tim.c</FilePath>
-            </File>
-            <File>
               <FileName>tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/tim.c</FilePath>
@@ -461,6 +451,11 @@
               <FileName>stm32f4xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f4xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_timebase_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/stm32f4xx_hal_timebase_tim.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -521,6 +516,11 @@
               <FileName>stmflash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\STMFLASH\stmflash.c</FilePath>
+            </File>
+            <File>
+              <FileName>manipulaterD2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\DRIVER\manipulaterD2.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -861,6 +861,51 @@
               <FileName>port.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>CAN</GroupName>
+          <Files>
+            <File>
+              <FileName>CANOpen_CMD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\CANOpen_CMD.c</FilePath>
+            </File>
+            <File>
+              <FileName>CANOpen_EPDO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\CANOpen_EPDO.c</FilePath>
+            </File>
+            <File>
+              <FileName>CANOpen_RPDO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\CANOpen_RPDO.c</FilePath>
+            </File>
+            <File>
+              <FileName>CANOpen_SDO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\CANOpen_SDO.c</FilePath>
+            </File>
+            <File>
+              <FileName>CANOpen_SYNC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\CANOpen_SYNC.c</FilePath>
+            </File>
+            <File>
+              <FileName>CANOpen_TPDO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\CANOpen_TPDO.c</FilePath>
+            </File>
+            <File>
+              <FileName>CanOpenNetWork.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\CanOpenNetWork.c</FilePath>
+            </File>
+            <File>
+              <FileName>MyCAN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\CANNetwork\MyCAN.c</FilePath>
             </File>
           </Files>
         </Group>

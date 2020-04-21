@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2020-02-18 14:18:09
- * @LastEditors:Robosea
- * @LastEditTime:2020-03-03 10:48:21
+ * @LastEditors:smake
+ * @LastEditTime:2020-04-18 18:33:32
  * @FilePath      :\ROV_F429_APP-10-10\USER\CONTROL\control.h
  * @brief         :
  */
@@ -87,11 +87,10 @@ typedef struct
     float Frollmin;  //roll轴最小值
 } ROV_FValuetypedef;
 #define MAX_SPEED 500 //490
-//#define MID_PWM       1490  //西工大 6号
-#define MID_PWM 1500 //西工大 5号
+//#define MotorPWMMidVal       1490  //西工大 6号
 //#define DELTA_PWM     10
-#define MAX_PWM     (MID_PWM + MAX_SPEED)
-#define MIN_PWM     (MID_PWM - MAX_SPEED)
+#define MAX_PWM     (MotorPWMMidVal + MAX_SPEED)
+#define MIN_PWM     (MotorPWMMidVal - MAX_SPEED)
 #define SPEED_COEFF 4.0 //4.9
 //#define CONSTRAIN(x,max,min) (x>max?max:(x<min?min:x))
 #define MAX(a, b) (a > b ? a : b)

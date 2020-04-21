@@ -4,7 +4,6 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "F:/desktop/ROV_F429_APP-10-10/**"
             ],
             "defines": [
                 "_DEBUG",

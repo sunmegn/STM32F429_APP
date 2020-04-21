@@ -61,10 +61,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(W5500_CS_GPIO_Port, W5500_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, USART3_RE_Pin|LORA_AUX_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, USART3_RE_Pin|POWER_KEY_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(POWER_KEY_GPIO_Port, POWER_KEY_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LORA_AUX_GPIO_Port, LORA_AUX_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, MS5837_SCL_PIN_Pin|MS5837_SDA_PIN_Pin|SABER_RST_Pin, GPIO_PIN_SET);

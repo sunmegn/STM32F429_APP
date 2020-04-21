@@ -25,7 +25,7 @@
 #include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN Includes */     
 #include "includes.h"
 /* USER CODE END Includes */
 
@@ -60,17 +60,17 @@ osThreadId ledTaskHandle;
 
 /* USER CODE END FunctionPrototypes */
 
-void MessageTask_Function(void const *argument);
-void SensorTask_Function(void const *argument);
-void ControlTask_Function(void const *argument);
-void pressureTask_Function(void const *argument);
-void imuTask_Function(void const *argument);
-void ledTask_Function(void const *argument);
+void MessageTask_Function(void const * argument);
+void SensorTask_Function(void const * argument);
+void ControlTask_Function(void const * argument);
+void pressureTask_Function(void const * argument);
+void imuTask_Function(void const * argument);
+void ledTask_Function(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
 static StaticTask_t xIdleTaskTCBBuffer;
@@ -90,57 +90,57 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
   * @param  None
   * @retval None
   */
-void MX_FREERTOS_Init(void)
-{
-    /* USER CODE BEGIN Init */
+void MX_FREERTOS_Init(void) {
+  /* USER CODE BEGIN Init */
 
-    /* USER CODE END Init */
+  /* USER CODE END Init */
 
-    /* USER CODE BEGIN RTOS_MUTEX */
+  /* USER CODE BEGIN RTOS_MUTEX */
     /* add mutexes, ... */
-    /* USER CODE END RTOS_MUTEX */
+  /* USER CODE END RTOS_MUTEX */
 
-    /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
     /* add semaphores, ... */
-    /* USER CODE END RTOS_SEMAPHORES */
+  /* USER CODE END RTOS_SEMAPHORES */
 
-    /* USER CODE BEGIN RTOS_TIMERS */
+  /* USER CODE BEGIN RTOS_TIMERS */
     /* start timers, add new ones, ... */
-    /* USER CODE END RTOS_TIMERS */
+  /* USER CODE END RTOS_TIMERS */
 
-    /* USER CODE BEGIN RTOS_QUEUES */
+  /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
     Task_Queue_Semaphore_Timers_Create();
-    /* USER CODE END RTOS_QUEUES */
+  /* USER CODE END RTOS_QUEUES */
 
-    /* Create the thread(s) */
-    /* definition and creation of messageTask */
-    osThreadDef(messageTask, MessageTask_Function, osPriorityHigh, 0, 2048);
-    messageTaskHandle = osThreadCreate(osThread(messageTask), NULL);
+  /* Create the thread(s) */
+  /* definition and creation of messageTask */
+  osThreadDef(messageTask, MessageTask_Function, osPriorityHigh, 0, 2048);
+  messageTaskHandle = osThreadCreate(osThread(messageTask), NULL);
 
-    /* definition and creation of SensorTask */
-    osThreadDef(SensorTask, SensorTask_Function, osPriorityLow, 0, 512);
-    SensorTaskHandle = osThreadCreate(osThread(SensorTask), NULL);
+  /* definition and creation of SensorTask */
+  osThreadDef(SensorTask, SensorTask_Function, osPriorityLow, 0, 512);
+  SensorTaskHandle = osThreadCreate(osThread(SensorTask), NULL);
 
-    /* definition and creation of controlTask */
-    osThreadDef(controlTask, ControlTask_Function, osPriorityRealtime, 0, 2048);
-    controlTaskHandle = osThreadCreate(osThread(controlTask), NULL);
+  /* definition and creation of controlTask */
+  osThreadDef(controlTask, ControlTask_Function, osPriorityRealtime, 0, 2048);
+  controlTaskHandle = osThreadCreate(osThread(controlTask), NULL);
 
-    /* definition and creation of pressureTask */
-    osThreadDef(pressureTask, pressureTask_Function, osPriorityIdle, 0, 512);
-    pressureTaskHandle = osThreadCreate(osThread(pressureTask), NULL);
+  /* definition and creation of pressureTask */
+  osThreadDef(pressureTask, pressureTask_Function, osPriorityIdle, 0, 512);
+  pressureTaskHandle = osThreadCreate(osThread(pressureTask), NULL);
 
-    /* definition and creation of imuTask */
-    osThreadDef(imuTask, imuTask_Function, osPriorityAboveNormal, 0, 2048);
-    imuTaskHandle = osThreadCreate(osThread(imuTask), NULL);
+  /* definition and creation of imuTask */
+  osThreadDef(imuTask, imuTask_Function, osPriorityAboveNormal, 0, 2048);
+  imuTaskHandle = osThreadCreate(osThread(imuTask), NULL);
 
-    /* definition and creation of ledTask */
-    osThreadDef(ledTask, ledTask_Function, osPriorityIdle, 0, 128);
-    ledTaskHandle = osThreadCreate(osThread(ledTask), NULL);
+  /* definition and creation of ledTask */
+  osThreadDef(ledTask, ledTask_Function, osPriorityIdle, 0, 128);
+  ledTaskHandle = osThreadCreate(osThread(ledTask), NULL);
 
-    /* USER CODE BEGIN RTOS_THREADS */
+  /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
-    /* USER CODE END RTOS_THREADS */
+  /* USER CODE END RTOS_THREADS */
+
 }
 
 /* USER CODE BEGIN Header_MessageTask_Function */
@@ -150,15 +150,15 @@ void MX_FREERTOS_Init(void)
   * @retval None
   */
 /* USER CODE END Header_MessageTask_Function */
-__weak void MessageTask_Function(void const *argument)
+__weak void MessageTask_Function(void const * argument)
 {
-    /* USER CODE BEGIN MessageTask_Function */
+  /* USER CODE BEGIN MessageTask_Function */
     /* Infinite loop */
     for (;;)
     {
         osDelay(1);
     }
-    /* USER CODE END MessageTask_Function */
+  /* USER CODE END MessageTask_Function */
 }
 
 /* USER CODE BEGIN Header_SensorTask_Function */
@@ -168,15 +168,15 @@ __weak void MessageTask_Function(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_SensorTask_Function */
-__weak void SensorTask_Function(void const *argument)
+__weak void SensorTask_Function(void const * argument)
 {
-    /* USER CODE BEGIN SensorTask_Function */
+  /* USER CODE BEGIN SensorTask_Function */
     /* Infinite loop */
     for (;;)
     {
         osDelay(1);
     }
-    /* USER CODE END SensorTask_Function */
+  /* USER CODE END SensorTask_Function */
 }
 
 /* USER CODE BEGIN Header_ControlTask_Function */
@@ -186,15 +186,15 @@ __weak void SensorTask_Function(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_ControlTask_Function */
-__weak void ControlTask_Function(void const *argument)
+__weak void ControlTask_Function(void const * argument)
 {
-    /* USER CODE BEGIN ControlTask_Function */
+  /* USER CODE BEGIN ControlTask_Function */
     /* Infinite loop */
     for (;;)
     {
         osDelay(1);
     }
-    /* USER CODE END ControlTask_Function */
+  /* USER CODE END ControlTask_Function */
 }
 
 /* USER CODE BEGIN Header_pressureTask_Function */
@@ -204,15 +204,15 @@ __weak void ControlTask_Function(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_pressureTask_Function */
-__weak void pressureTask_Function(void const *argument)
+__weak void pressureTask_Function(void const * argument)
 {
-    /* USER CODE BEGIN pressureTask_Function */
+  /* USER CODE BEGIN pressureTask_Function */
     /* Infinite loop */
     for (;;)
     {
         osDelay(1);
     }
-    /* USER CODE END pressureTask_Function */
+  /* USER CODE END pressureTask_Function */
 }
 
 /* USER CODE BEGIN Header_imuTask_Function */
@@ -222,15 +222,15 @@ __weak void pressureTask_Function(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_imuTask_Function */
-__weak void imuTask_Function(void const *argument)
+__weak void imuTask_Function(void const * argument)
 {
-    /* USER CODE BEGIN imuTask_Function */
+  /* USER CODE BEGIN imuTask_Function */
     /* Infinite loop */
     for (;;)
     {
         osDelay(1);
     }
-    /* USER CODE END imuTask_Function */
+  /* USER CODE END imuTask_Function */
 }
 
 /* USER CODE BEGIN Header_ledTask_Function */
@@ -240,15 +240,15 @@ __weak void imuTask_Function(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_ledTask_Function */
-__weak void ledTask_Function(void const *argument)
+__weak void ledTask_Function(void const * argument)
 {
-    /* USER CODE BEGIN ledTask_Function */
+  /* USER CODE BEGIN ledTask_Function */
     /* Infinite loop */
     for (;;)
     {
         osDelay(1);
     }
-    /* USER CODE END ledTask_Function */
+  /* USER CODE END ledTask_Function */
 }
 
 /* Private application code --------------------------------------------------*/

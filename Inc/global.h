@@ -21,11 +21,11 @@
 #define M_PI 3.1415926
 
 #define MY_ID           2
-#define CAN_IMU_ID 		3
+#define CAN_IMU_ID      3
 #define HOST_ID         1
 #define FREE_ID         255
 #define DEVHEARTBEAT_ID 0xF001
-#define SOFTVERSION_ID  0xF00F
+#define SOFTVERSION_ID  0x2003
 #define DEBUGMODE       0x01 //调试模式
 #define TESTMODE        0x02 //推进器中值标定模式
 #define NOMALMODE       0x03 //正常模式
@@ -57,10 +57,10 @@ typedef struct
 } AccLimit_t;
 #define CONSTRAIN(x, max, min) ((x) > max ? max : ((x) < min ? min : (x)))
 
-extern u8    g_nowWokeMode;  //当前工作模式  默认正常工作模式
-extern u8    g_HeartBeatCnt; //心跳计数
-extern u8    g_runMode;      //控制模式，00 手动模式  01 定航模式  02 定深模式  03 定深定航模式
-extern u16   Mid_pwm[6];     //6个推进器中值
+extern u8    g_nowWokeMode;     //当前工作模式  默认正常工作模式
+extern u8    g_HeartBeatCnt;    //心跳计数
+extern u8    g_runMode;         //控制模式，00 手动模式  01 定航模式  02 定深模式  03 定深定航模式
+extern u16   MotorPWMMidVal[6]; //6个推进器中值
 extern u8    g_LostPC;
 extern u32   g_UpdateFlag;
 extern u8    g_LEDWorkMode;

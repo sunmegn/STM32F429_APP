@@ -6,11 +6,15 @@
         "pressuretasks.h": "c",
         "global.h": "c",
         "pca9685.h": "c",
-        "mtlink.h": "c"
+        "mtlink.h": "c",
+        "iap.h": "c",
+        "stmflash.h": "c",
+        "control.h": "c"
     },
     "debug.console.fontSize": 12,
     "terminal.integrated.fontSize": 12,
     "markdown.preview.fontSize": 12,
     "vim.easymotionMarkerFontSize": "12",
-    "editor.fontSize": 13
+    "editor.fontSize": 13,
+    "C_Cpp.errorSquiggles": "Disabled"
 }

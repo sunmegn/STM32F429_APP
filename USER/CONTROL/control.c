@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
- * @LastEditors:Robosea
- * @LastEditTime:2020-03-24 19:54:58
+ * @LastEditors:smake
+ * @LastEditTime:2020-04-18 18:31:55
  * @brief         :电机控制函数组
  */
 #include "control.h"
@@ -15,7 +15,7 @@ int               DogBeatCount = DogMax_WaitTimes;
 ROV_FValuetypedef ROV_Val;
 u8                motorcalflag = 0; //是否进行电机PWM标定
 CtrlPara_t        ctrlpara_data;
-extern uint16_t   motorpwmset[6];
+extern uint16_t   MotorPWMMidVal[6];
 
 /**
  * @function_name:CtrlMidPwmInit
@@ -25,30 +25,30 @@ extern uint16_t   motorpwmset[6];
  */
 void CtrlMidPwmInit(void)
 {
-    STMFLASH_Read(PARAMADDR, Mid_pwm, 6);
-    if (Mid_pwm[0] < MINMIDPWMVAL || Mid_pwm[0] > MAXMIDPWMVAL) //判断中值是否在合理区间
+    STMFLASH_Read(PARAMADDR, MotorPWMMidVal, 6);
+    if (MotorPWMMidVal[0] < MINMIDPWMVAL || MotorPWMMidVal[0] > MAXMIDPWMVAL) //判断中值是否在合理区间
     {
-        Mid_pwm[0] = 1500;
+        MotorPWMMidVal[0] = 1500;
     }
-    if (Mid_pwm[1] < MINMIDPWMVAL || Mid_pwm[1] > MAXMIDPWMVAL)
+    if (MotorPWMMidVal[1] < MINMIDPWMVAL || MotorPWMMidVal[1] > MAXMIDPWMVAL)
     {
-        Mid_pwm[1] = 1500;
+        MotorPWMMidVal[1] = 1500;
     }
-    if (Mid_pwm[2] < MINMIDPWMVAL || Mid_pwm[2] > MAXMIDPWMVAL)
+    if (MotorPWMMidVal[2] < MINMIDPWMVAL || MotorPWMMidVal[2] > MAXMIDPWMVAL)
     {
-        Mid_pwm[2] = 1500;
+        MotorPWMMidVal[2] = 1500;
     }
-    if (Mid_pwm[3] < MINMIDPWMVAL || Mid_pwm[3] > MAXMIDPWMVAL)
+    if (MotorPWMMidVal[3] < MINMIDPWMVAL || MotorPWMMidVal[3] > MAXMIDPWMVAL)
     {
-        Mid_pwm[3] = 1500;
+        MotorPWMMidVal[3] = 1500;
     }
-    if (Mid_pwm[4] < MINMIDPWMVAL || Mid_pwm[4] > MAXMIDPWMVAL)
+    if (MotorPWMMidVal[4] < MINMIDPWMVAL || MotorPWMMidVal[4] > MAXMIDPWMVAL)
     {
-        Mid_pwm[4] = 1500;
+        MotorPWMMidVal[4] = 1500;
     }
-    if (Mid_pwm[5] < MINMIDPWMVAL || Mid_pwm[5] > MAXMIDPWMVAL)
+    if (MotorPWMMidVal[5] < MINMIDPWMVAL || MotorPWMMidVal[5] > MAXMIDPWMVAL)
     {
-        Mid_pwm[5] = 1500;
+        MotorPWMMidVal[5] = 1500;
     }
 }
 
@@ -525,21 +525,21 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
     if (motorcalflag)
     {
         //进行版本转换，不同电机编号对应
-        PROP1 = motorpwmset[0];
-        PROP2 = motorpwmset[3];
-        PROP3 = motorpwmset[5];
-        PROP4 = motorpwmset[2];
-        PROP5 = motorpwmset[1];
-        PROP6 = motorpwmset[4];
+        PROP1 = MotorPWMMidVal[0];
+        PROP2 = MotorPWMMidVal[3];
+        PROP3 = MotorPWMMidVal[5];
+        PROP4 = MotorPWMMidVal[2];
+        PROP5 = MotorPWMMidVal[1];
+        PROP6 = MotorPWMMidVal[4];
     }
     else
     {
-        PROP1 = ForceToESC(BufFoxy[1] + BufFzo[1] + BufFyaw[1] + BufFpitch[1] + BufFroll[1], -1, Mid_pwm[0]); //左前
-        PROP2 = ForceToESC(BufFoxy[2] + BufFzo[2] + BufFyaw[2] + BufFpitch[2] + BufFroll[2], -1, Mid_pwm[3]); //右前
-        PROP3 = ForceToESC(BufFoxy[3] + BufFzo[3] + BufFyaw[3] + BufFpitch[3] + BufFroll[3], -1, Mid_pwm[2]); //左后
-        PROP4 = ForceToESC(BufFoxy[4] + BufFzo[4] + BufFyaw[4] + BufFpitch[4] + BufFroll[4], -1, Mid_pwm[5]); //右后
-        PROP5 = ForceToESC(BufFoxy[5] + BufFzo[5] + BufFyaw[5] + BufFpitch[5] + BufFroll[5], -1, Mid_pwm[1]); //左中
-        PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], -1, Mid_pwm[4]); //右中
+        PROP1 = ForceToESC(BufFoxy[1] + BufFzo[1] + BufFyaw[1] + BufFpitch[1] + BufFroll[1], -1, MotorPWMMidVal[0]); //左前
+        PROP2 = ForceToESC(BufFoxy[2] + BufFzo[2] + BufFyaw[2] + BufFpitch[2] + BufFroll[2], -1, MotorPWMMidVal[3]); //右前
+        PROP3 = ForceToESC(BufFoxy[3] + BufFzo[3] + BufFyaw[3] + BufFpitch[3] + BufFroll[3], -1, MotorPWMMidVal[2]); //左后
+        PROP4 = ForceToESC(BufFoxy[4] + BufFzo[4] + BufFyaw[4] + BufFpitch[4] + BufFroll[4], -1, MotorPWMMidVal[5]); //右后
+        PROP5 = ForceToESC(BufFoxy[5] + BufFzo[5] + BufFyaw[5] + BufFpitch[5] + BufFroll[5], -1, MotorPWMMidVal[1]); //左中
+        PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], -1, MotorPWMMidVal[4]); //右中
     }
 
     IIR_2OrderLpf_Init(&FLpfPWM5, 50, 4);

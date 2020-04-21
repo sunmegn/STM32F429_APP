@@ -10,7 +10,6 @@
 #define MAXMIDPWMVAL 1600
 
 #define DEVHEARTBEAT_ID 0xF001
-#define SOFTVERSION_ID  0xF00F
 #define DEBUGMODE       0x01 //调试模式
 #define TESTMODE        0x02 //推进器中值标定模式
 #define NOMALMODE       0x03 //正常模式
@@ -34,6 +33,8 @@ void UserSendSaveACK(uint8_t flag);
 */
 typedef struct
 {
+    u8    saveflag;    //保存标志，1写入，2更改，3读取
+    u8    outloopflag; //内外环控制标志
     float OutP;
     float OutI;
     float OutD;
@@ -41,6 +42,13 @@ typedef struct
     float InI;
     float InD;
 } CloseLoopPID_t;
+
+typedef struct
+{
+    CloseLoopPID_t YAWPID;
+    CloseLoopPID_t DeepPID;
+    CloseLoopPID_t RollPID;
+} AllPIDArg_typedef;
 
 /*
 * 控制指令结构体

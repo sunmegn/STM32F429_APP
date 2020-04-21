@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
  * @LastEditors:Robosea
- * @LastEditTime:2020-04-09 14:48:18
+ * @LastEditTime:2020-04-16 12:28:31
  * @brief         : 该任务负责与上位机进行数据传输，主要负责数据的上传
  */
 #include "messageTasks.h"
@@ -13,7 +13,8 @@
 #include "pca9685.h"
 #include "pwm.h"
 #include "stmflash.h"
-AllInfoToPC_Msg_t RovInfo_msg; //用于上传至上位机的总信息
+
+AllInfoToPC_Msg_t RovInfo_msg = {0}; //用于上传至上位机的总信息
 
 static IMUMsg_t      imu_data;       //惯导信息
 static PowerMsg_t    power_data;     //电压电流信息
@@ -30,7 +31,7 @@ QueueHandle_t        MTLinkUDPAskQueue = NULL; //queue--UDP应答
 
 static mtlink_all_CMD_t myctrl_data; //上位机发送至单片机控制数据
 ControlParam_t          ctrldata;    //控制数据
-
+u32                     MessageTaskRunTimes = 0;
 /**
  * @function_name: MTLinkUDP_Init
  * @brief: 初始化MTLink，创建队列
@@ -73,10 +74,12 @@ extern TIM_HandleTypeDef htim7;
 void MessageTask_Function(void const *argument)
 {
     portTickType tick = xTaskGetTickCount();
+	uint8_t my_id[1]={MY_ID};
     BaseType_t   err;
     static int   controlT = 0;
     MTLinkUDP_Init();
-    int len;
+	MTLinkSetMY_ID(&MTLink_UDP,my_id,sizeof(my_id));
+    int len = 100;
     while (1)
     {
         run_time[1] = getRunTime(1);
@@ -110,7 +113,7 @@ void MessageTask_Function(void const *argument)
         //FIXME
         if (pressure_data.depth < 5) // 深度小于5cm
         {
-            //g_runMode            = 0x01;
+            g_runMode            = 0x01;
             ctrldata.FB_rocker   = ctrldata.FB_rocker * 0.5;
             ctrldata.LR_rocker   = ctrldata.LR_rocker * 0.5;
             ctrldata.UD_rocker   = ctrldata.UD_rocker * 0.5;
@@ -187,9 +190,6 @@ void MessageTask_Function(void const *argument)
         RovInfo_msg.IMUData.Angle_yaw   = -imu_data.yaw;
         RovInfo_msg.IMUData.Angle_pitch = imu_data.pitch;
         RovInfo_msg.IMUData.Angle_roll  = imu_data.roll;
-        // RovInfo_msg.IMUData.Angle_yaw   = ((imu_data.gyrox >= 0) ? (360 - imu_data.gyrox) : (0 - imu_data.gyrox));
-        // RovInfo_msg.IMUData.Angle_pitch = imu_data.gyroy;
-        // RovInfo_msg.IMUData.Angle_roll  = imu_data.gyroz;
 
         //Pressure
         RovInfo_msg.PressureData.Temp     = pressure_data.Temperature;
@@ -198,7 +198,7 @@ void MessageTask_Function(void const *argument)
         RovInfo_msg.PressureData.Depspeed = 1;
         /* 上传 */
         MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, DEVHEARTBEAT_ID, (uint8_t *)&RovInfo_msg, sizeof(RovInfo_msg), 10);
-
+        MessageTaskRunTimes++;
         /* 接收 */
         if (xQueueReceive(MTLinkUDPRxQueue, &len, 5) == pdTRUE)
         { //300ms超时
@@ -209,65 +209,10 @@ void MessageTask_Function(void const *argument)
         }
 
 #endif
-        vTaskDelayUntil(&tick, 30);
+        vTaskDelayUntil(&tick, 20);
     }
 }
 
-/***
- * @function_name: SaveToFlash
- * @brief: 数据保存至Flash
- * @param {type}
- * @return: None
- */
-// void SaveToFlash(void)
-// {
-// //    u8 error = 0;
-//     STMFLASH_Erase_DATA(); //擦除数据存储区
-//     osDelay(100);
-//     STMFLASH_Write(PARAMADDR, para_pwm, 6);
-//     osDelay(100);
-//     STMFLASH_Read(PARAMADDR, Mid_pwm, 6);
-
-// if (Mid_pwm[0] < MINMIDPWMVAL || Mid_pwm[0] > MAXMIDPWMVAL) //判断中值是否在合理区间
-// {
-//     Mid_pwm[0] = 1500;
-//     error      = 1;
-// }
-// if (Mid_pwm[1] < MINMIDPWMVAL || Mid_pwm[1] > MAXMIDPWMVAL)
-// {
-//     Mid_pwm[1] = 1500;
-//     error      = 1;
-// }
-// if (Mid_pwm[2] < MINMIDPWMVAL || Mid_pwm[2] > MAXMIDPWMVAL)
-// {
-//     Mid_pwm[2] = 1500;
-//     error      = 1;
-// }
-// if (Mid_pwm[3] < MINMIDPWMVAL || Mid_pwm[3] > MAXMIDPWMVAL)
-// {
-//     Mid_pwm[3] = 1500;
-//     error      = 1;
-// }
-// if (Mid_pwm[4] < MINMIDPWMVAL || Mid_pwm[4] > MAXMIDPWMVAL)
-// {
-//     Mid_pwm[4] = 1500;
-//     error      = 1;
-// }
-// if (Mid_pwm[5] < MINMIDPWMVAL || Mid_pwm[5] > MAXMIDPWMVAL)
-// {
-//     Mid_pwm[5] = 1500;
-//     error      = 1;
-// }
-
-// if (error == 1)
-// {
-//     UserSendSaveACK(0x00);
-// }
-// else if (error == 0)
-// {
-//     UserSendSaveACK(0x01);
-// }
-//}
 /***
  * @function_name: UserSendSaveACK
  * @brief: 发送Ask
