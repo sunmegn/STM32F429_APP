@@ -21,6 +21,12 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "Sonar852Task.h"
+#include "manipulaterD2.h"
+extern int              SONAR852GETDATA_FLAG;
+extern sonar852_Typedef Sonar852_Data;
+extern int              ctrl_cmd_SonarFlag;
+extern uint8_t          manipulater_D2_receiveBuf[32];
 
 /* USER CODE END 0 */
 
@@ -28,6 +34,7 @@ UART_HandleTypeDef huart8;
 UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 DMA_HandleTypeDef hdma_uart8_rx;
+DMA_HandleTypeDef hdma_usart3_rx;
 DMA_HandleTypeDef hdma_usart6_rx;
 
 /* UART8 init function */
@@ -157,6 +164,25 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+    /* USART3 DMA Init */
+    /* USART3_RX Init */
+    hdma_usart3_rx.Instance = DMA1_Stream1;
+    hdma_usart3_rx.Init.Channel = DMA_CHANNEL_4;
+    hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart3_rx.Init.Mode = DMA_NORMAL;
+    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart3_rx);
+
     /* USART3 interrupt Init */
     HAL_NVIC_SetPriority(USART3_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(USART3_IRQn);
@@ -249,6 +275,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOD, GPIO_PIN_8|GPIO_PIN_9);
 
+    /* USART3 DMA DeInit */
+    HAL_DMA_DeInit(uartHandle->hdmarx);
+
     /* USART3 interrupt Deinit */
     HAL_NVIC_DisableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspDeInit 1 */
@@ -278,7 +307,57 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+uart3_Receive_typedef usart3_rxbuf;
 
+int RS485_Init(void)
+{
+    RS485_RE(0);
+    HAL_UART_Receive_DMA(&huart3, usart3_rxbuf.RX_pData, sizeof(usart3_rxbuf.RX_pData));
+    __HAL_UART_CLEAR_IDLEFLAG(&huart3);
+    __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+    return 0;
+}
+
+/**
+  * @funNm   HAL_USART3_Receive_IDLE
+  * @brief   USART3空闲中断接受回调函数 接受数据
+  * @param	 无
+  * @retval  无
+  */
+void HAL_USART3_Receive_IDLE(void)
+{
+    __HAL_UART_CLEAR_IDLEFLAG(&huart3);
+    HAL_UART_DMAStop(&huart3); //DMAmuxChannel
+
+    usart3_rxbuf.RxSize = USART3_RX_LEN - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
+    if (ctrl_cmd_SonarFlag == 1)
+    {
+        usart3_Decode(usart3_rxbuf.RX_pData, usart3_rxbuf.RxSize);
+        memset(usart3_rxbuf.RX_pData, '\0', usart3_rxbuf.RxSize);
+    }
+    HAL_UART_Receive_DMA(&huart3, usart3_rxbuf.RX_pData, USART3_RX_LEN);
+}
+
+//usart3数据解析
+int usart3_Decode(uint8_t *buf, uint16_t len)
+{
+    if ((len <= 32) & (buf[0] == 0xA5)) //有可能是机械臂返回值
+    {
+        memcpy(manipulater_D2_receiveBuf, buf, buf[len - 2]);
+        manipulater_D2_receive(manipulater_D2_receiveBuf);
+    }
+    if (len >= 500) //real is 513!
+    {
+        if ((buf[0] == 0x49) & (buf[len - 1] == 0xFC))
+        {
+            memcpy(Sonar852_Data.Sonar852_Body, buf, len);
+            Sonar852_Data.Rx_Size = len;
+            SONAR852GETDATA_FLAG  = 1;
+        }
+    }
+
+    return 0;
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

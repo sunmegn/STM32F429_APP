@@ -40,8 +40,6 @@ bool CAN_CMDAsk(int Master_ID,uint8_t* buf,int len)
 }
 
 
-
-
 bool CAN_CMD_Send(int Master_ID,unsigned short int object,unsigned char Sub_ID,unsigned int timeout_ms)
 {
 	if(CANCMDRespandsQueue == NULL){

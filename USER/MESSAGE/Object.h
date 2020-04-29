@@ -11,7 +11,7 @@
 //#include "global.h"
 #include "MTLink.h"
 #include "controlTasks.h"
-#include "tim.h"
+
 #include "board.h"
 #include "CanNetWork.h"
 #include "stmflash.h"
@@ -43,10 +43,12 @@ enum MTLINK_OBJECT
     CMD_ROLLPID_ID       = 0x6004, //横滚PID调参
     CMD_HOSTHEARTBEAT_ID = 0xF000,
     CMD_APPCODE_ID       = 0xF002,
+	CMD_SONAR852_ID		=0xF003,//852声呐ID
 };
 /*
 *推进器中值结构体
 */
+#pragma pack(1)
 typedef struct
 {
     u8  saveflag;
@@ -59,6 +61,8 @@ typedef struct
     u16 motormidpwm7;
     u16 motormidpwm8;
 } MotorMidVal_t;
+#pragma pack()
+
 #define LIGHT_PWM(val)                                       \
     do                                                       \
     {                                                        \

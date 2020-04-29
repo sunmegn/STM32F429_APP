@@ -20,11 +20,11 @@
 #include "task.h"
 #define M_PI 3.1415926
 
-#define MY_ID           2
-#define CAN_IMU_ID      3
-#define HOST_ID         1
-#define FREE_ID         255
-#define DEVHEARTBEAT_ID 0xF001
+#define MY_ID      2
+#define CAN_IMU_ID 3
+#define HOST_ID    1
+#define FREE_ID    255
+// #define DEVHEARTBEAT_ID 0xF001
 #define SOFTVERSION_ID  0x2003
 #define DEBUGMODE       0x01 //调试模式
 #define TESTMODE        0x02 //推进器中值标定模式
@@ -34,6 +34,8 @@
 typedef unsigned char  u8;
 typedef unsigned short u16;
 typedef unsigned int   u32;
+
+#pragma pack(1)
 typedef struct
 {
     float yk;
@@ -55,6 +57,19 @@ typedef struct
     float lastvel;
     float nowv;
 } AccLimit_t;
+
+typedef struct
+{
+    int year;
+    int month;
+    int data;
+    int hour;
+    int minute;
+    int second;
+    int ms;
+} DateTime_t;
+#pragma pack()
+
 #define CONSTRAIN(x, max, min) ((x) > max ? max : ((x) < min ? min : (x)))
 
 extern u8    g_nowWokeMode;     //当前工作模式  默认正常工作模式

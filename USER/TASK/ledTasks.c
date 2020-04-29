@@ -13,7 +13,8 @@
 #include "MTLink.h"
 #include "stmflash.h"
 #include "IAP.h"
-void ledTask_Function(void const *argument)
+
+void       ledTask_Function(void const *argument)
 {
     portTickType tick     = xTaskGetTickCount();
     u8           my_id[1] = {2};
@@ -23,6 +24,7 @@ void ledTask_Function(void const *argument)
     {
         Jump_To_Bootloader();
     }
+
     while (1)
     {
 #ifdef DEBUG
@@ -48,12 +50,12 @@ void ledTask_Function(void const *argument)
             g_HeartBeatCnt++;
             g_LostPC = 0;
         }
-        //BUZZER(1);
+        BUZZER(1);
         osDelay(50);
-        //BUZZER(0);
+        BUZZER(0);
+
         HAL_IWDG_Refresh(&hiwdg); //超过两秒不喂狗，复位重启32k，32, 2000
 #endif
-        //vTaskDelayUntil(&tick,1000);	//1000/ portTICK_RATE_MS
         MTLinkPrint(&MTLink_UDP, 0x02, 0x01, "Run In APP...", sizeof("Run In APP..."), 300);
         osDelay(1000);
     }

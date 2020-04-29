@@ -2,12 +2,14 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
- * @LastEditors   :Robosea
- * @LastEditTime  :2020-02-24 00:18:46
+ * @LastEditors:smake
+ * @LastEditTime:2020-04-25 13:49:49
  * @brief         :
  */
 #include "board.h"
 #include "udp.h"
+#include "usart.h"
+#include "manipulaterD2.h"
 
 QueueHandle_t IMU_Message_Queue      = NULL;
 QueueHandle_t Control_Message_Queue  = NULL;
@@ -136,14 +138,16 @@ u32 getRunTime(u8 n)
   */
 void BSP_Init(void)
 {
-    PowerON_SwitchSelfHold(); //电源开关锁存
-    PCA9685_Init();           //IIC 16路PWM输出
-    MS5837_Init();            //压传
-    SHT35_Init();             //舱内温湿度
-    Batt_Init();              //电源 电压、电流
-    Udp_Init();             //W5500 UDP通信
-    IMU_Init();               //惯导模块
-    PWM_Init();               //LED大灯PWM
+    PowerON_SwitchSelfHold();   //电源开关锁存
+    PCA9685_Init();             //IIC 16路PWM输出
+    MS5837_Init();              //压传
+    SHT35_Init();               //舱内温湿度
+    Batt_Init();                //电源 电压、电流
+    Udp_Init();                 //W5500 UDP通信
+    IMU_Init();                 //惯导模块
+    RS485_Init();               //初始化852声呐
+    manipulater_D2_RS485Init(); //初始化机械臂相关参数
+    PWM_Init();                 //LED大灯PWM
     MessageInit();
     PID_Init();
     CtrlMidPwmInit();

@@ -2,27 +2,31 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors   :Robosea
- * @LastEditTime  :2020-02-26 11:46:16
+ * @LastEditors:smake
+ * @LastEditTime:2020-04-24 17:15:57
  * @brief         : 惯导任务函数
  */
 
 #include "imuTasks.h"
 
-IMUMsg_t             IMU_raw_data;
-Data_GYRO_HandleType imurpy;
-extern u8            WakeUpHostAck[8];
-extern u8            SwitchToMeasureMode[8];
-extern u8            SwitchToConfigMode[8];
-extern u8            GetAllStatus[8];
-extern CtrlPara_t    ctrlpara_data;
-extern u8            is_imustatus;
+IMUMsg_t                   IMU_raw_data;
+Data_GYRO_HandleType       imurpy;
+extern u8                  WakeUpHostAck[8];
+extern u8                  SwitchToMeasureMode[8];
+extern u8                  SwitchToConfigMode[8];
+extern u8                  GetAllStatus[8];
+extern CtrlPara_t          ctrlpara_data;
+extern u8                  is_imustatus;
+float                imu_yaw_real        = 0;
+change_imu_yaw_val_typedef changed_imu_yaw_val = {0};
+float                      two_Imu_yaw_error   = 0;
 
 void imuTask_Function(void const *argument)
 {
     osDelay(10);
     portTickType tick = xTaskGetTickCount();
     u8           cnt  = 0;
+
     while (1)
     {
         run_time[5] = getRunTime(5);
@@ -31,7 +35,26 @@ void imuTask_Function(void const *argument)
 #else
 
         IMU_GetData(&IMU_raw_data);
+        imu_yaw_real                    = IMU_raw_data.yaw;
+        changed_imu_yaw_val.imu_yaw_now = IMU_raw_data.yaw;
+        two_Imu_yaw_error               = (changed_imu_yaw_val.imu_yaw_now - changed_imu_yaw_val.imu_yaw_last);
+        if (fabs(two_Imu_yaw_error) >= 180)
+        {
+            if (changed_imu_yaw_val.imu_yaw_last < 0)
+            {
+                two_Imu_yaw_error -= 360;
+            }
+            else
+            {
+                two_Imu_yaw_error += 360;
+            }
+        }
+        changed_imu_yaw_val.imu_yaw_totalval += two_Imu_yaw_error;
+        changed_imu_yaw_val.imu_yaw_last = changed_imu_yaw_val.imu_yaw_now;
+        IMU_raw_data.yaw                 = changed_imu_yaw_val.imu_yaw_totalval;
+
         IMU_Getrpy(&imurpy);
+
         ctrlpara_data.gyroX = imurpy.gyroX;
         ctrlpara_data.gyroY = imurpy.gyroY;
         ctrlpara_data.gyroZ = imurpy.gyroZ;

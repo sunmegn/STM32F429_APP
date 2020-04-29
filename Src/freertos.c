@@ -54,6 +54,8 @@ osThreadId controlTaskHandle;
 osThreadId pressureTaskHandle;
 osThreadId imuTaskHandle;
 osThreadId ledTaskHandle;
+osThreadId Sonar852Handle;
+osThreadId manipulaterTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -66,6 +68,8 @@ void ControlTask_Function(void const * argument);
 void pressureTask_Function(void const * argument);
 void imuTask_Function(void const * argument);
 void ledTask_Function(void const * argument);
+void Sonar852Task_Function(void const * argument);
+void ManipulaterTaskFunction(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -136,6 +140,14 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of ledTask */
   osThreadDef(ledTask, ledTask_Function, osPriorityIdle, 0, 128);
   ledTaskHandle = osThreadCreate(osThread(ledTask), NULL);
+
+  /* definition and creation of Sonar852 */
+  osThreadDef(Sonar852, Sonar852Task_Function, osPriorityNormal, 0, 512);
+  Sonar852Handle = osThreadCreate(osThread(Sonar852), NULL);
+
+  /* definition and creation of manipulaterTask */
+  osThreadDef(manipulaterTask, ManipulaterTaskFunction, osPriorityBelowNormal, 0, 512);
+  manipulaterTaskHandle = osThreadCreate(osThread(manipulaterTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -249,6 +261,42 @@ __weak void ledTask_Function(void const * argument)
         osDelay(1);
     }
   /* USER CODE END ledTask_Function */
+}
+
+/* USER CODE BEGIN Header_Sonar852Task_Function */
+/**
+* @brief Function implementing the Sonar852 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Sonar852Task_Function */
+__weak void Sonar852Task_Function(void const * argument)
+{
+  /* USER CODE BEGIN Sonar852Task_Function */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+  /* USER CODE END Sonar852Task_Function */
+}
+
+/* USER CODE BEGIN Header_ManipulaterTaskFunction */
+/**
+* @brief Function implementing the manipulaterTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ManipulaterTaskFunction */
+__weak void ManipulaterTaskFunction(void const * argument)
+{
+  /* USER CODE BEGIN ManipulaterTaskFunction */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END ManipulaterTaskFunction */
 }
 
 /* Private application code --------------------------------------------------*/

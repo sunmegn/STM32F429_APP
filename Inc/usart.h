@@ -35,7 +35,16 @@ extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN Private defines */
+    #define RS485_RE(val) val ? HAL_GPIO_WritePin(GPIOD, USART3_RE_Pin, GPIO_PIN_SET) : HAL_GPIO_WritePin(GPIOD, USART3_RE_Pin, GPIO_PIN_RESET)
+    #define USART3_RX_LEN 600
 
+    typedef struct
+    {
+        uint8_t  RXFlag : 1;
+        uint16_t RxSize;
+        uint8_t  RX_pData[USART3_RX_LEN];
+        uint8_t  RealBuf[USART3_RX_LEN];
+    } uart3_Receive_typedef;
 /* USER CODE END Private defines */
 
 void MX_UART8_Init(void);
@@ -43,7 +52,9 @@ void MX_USART3_UART_Init(void);
 void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+    int  usart3_Decode(uint8_t *buf, uint16_t len);
+    void HAL_USART3_Receive_IDLE(void);
+	int RS485_Init(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

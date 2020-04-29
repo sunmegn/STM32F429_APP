@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-02-18 14:18:09
  * @LastEditors:smake
- * @LastEditTime:2020-04-18 18:33:32
+ * @LastEditTime:2020-04-24 11:19:47
  * @FilePath      :\ROV_F429_APP-10-10\USER\CONTROL\control.h
  * @brief         :
  */
@@ -21,6 +21,7 @@ typedef enum
     AUTO
 } ControlState_t;
 
+#pragma pack(1)
 typedef struct
 {
     short          channel[4];
@@ -33,7 +34,6 @@ typedef struct
     //	float voltage;
 } ControlMsg_t;
 
-#pragma pack(1)
 typedef struct
 {
     u8    depth_state;   //¶¨Éî×´Ì¬

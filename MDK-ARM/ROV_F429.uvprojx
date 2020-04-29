@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F429xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;   ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;   ../Drivers/CMSIS/Include;   ..\MDK-ARM;   ../Middlewares/Third_Party/FreeRTOS/Source/include;   ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;   ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;   ..\USER;   ..\USER\CONTROL;   ..\USER\DRIVER;   ..\USER\MATH;   ..\USER\MESSAGE;   ..\USER\TASK;   ..\USER\W5500;   ..\USER\STMFLASH;   ..\USER\Version;   ..\USER\CANNetwork</IncludePath>
+              <IncludePath>../Drivers/STM32F4xx_HAL_Driver/Inc;    ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;    ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;    ../Drivers/CMSIS/Include;    ..\MDK-ARM;    ../Middlewares/Third_Party/FreeRTOS/Source/include;    ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;    ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;    ..\USER;    ..\USER\CONTROL;    ..\USER\DRIVER;    ..\USER\MATH;    ..\USER\MESSAGE;    ..\USER\TASK;    ..\USER\W5500;    ..\USER\STMFLASH;    ..\USER\Version;    ..\USER\CANNetwork;    ..\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -517,16 +517,16 @@
               <FileType>1</FileType>
               <FilePath>..\USER\STMFLASH\stmflash.c</FilePath>
             </File>
-            <File>
-              <FileName>manipulaterD2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USER\DRIVER\manipulaterD2.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>TASK</GroupName>
           <Files>
+            <File>
+              <FileName>manipulaterD2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\DRIVER\manipulaterD2.c</FilePath>
+            </File>
             <File>
               <FileName>ledTasks.c</FileName>
               <FileType>1</FileType>
@@ -556,6 +556,11 @@
               <FileName>imuTasks.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\TASK\imuTasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>Sonar852Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\TASK\Sonar852Task.c</FilePath>
             </File>
           </Files>
         </Group>

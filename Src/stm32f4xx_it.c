@@ -28,6 +28,7 @@
 #include "Kalman_filtering.h"
 #include "imuTasks.h"
 #include "pressureTasks.h"
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +65,7 @@
 extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim3;
 extern DMA_HandleTypeDef hdma_uart8_rx;
+extern DMA_HandleTypeDef hdma_usart3_rx;
 extern DMA_HandleTypeDef hdma_usart6_rx;
 extern UART_HandleTypeDef huart8;
 extern UART_HandleTypeDef huart3;
@@ -101,7 +103,7 @@ void HardFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-//	  __asm voalite ("BKPT #1");
+        //	  __asm voalite ("BKPT #1");
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
 }
@@ -172,6 +174,20 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 stream1 global interrupt.
+  */
+void DMA1_Stream1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream1_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 stream6 global interrupt.
   */
 void DMA1_Stream6_IRQHandler(void)
@@ -199,24 +215,7 @@ void TIM3_IRQHandler(void)
     k_speed = Kalman_Filter_speed(&kalman_speed, pressure_raw.depth, accRawData, IMU_raw_data);
 
     speed_task(accRawData, IMU_raw_data);
-    //    if(number >= 100)
-    //    {
-    //        if(flag == 0)
-    //        {
-    //            acc_middle = value / 100.f;
-    //            flag = 1;
-    //        }
-    //
-    //    }
-    //    else
-    //    {
-    //        if(acc < 1.f && acc > -1.f)
-    //        {
-    //            value += acc;
-    //            number++;
-    //        }
-    //
-    //    }
+
 
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
@@ -231,7 +230,10 @@ void TIM3_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-    USER_UART_IRQHandler(&huart3);
+	if ((__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE) != RESET))
+    { 
+	HAL_USART3_Receive_IDLE();
+	}
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */

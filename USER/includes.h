@@ -22,7 +22,7 @@
 typedef uint32_t u32;
 typedef uint16_t u16;
 typedef uint8_t  u8;
-
+#include "global.h"
 //м╗пе
 //#include "message.h"
 #include "data_parse.h"
@@ -39,10 +39,9 @@ typedef uint8_t  u8;
 #include "switch.h"
 #include "pwm.h"
 #include "mcp3221.h"
-#include "modbus.h"
+
 //W5500
 #include "types.h"
-
 #include "w5500.h"
 #include "socket.h"
 

@@ -423,9 +423,9 @@ float GetThrottleKpower(float x, float min, float max)
   * @以下为控制量输出与推进器对应关系
   *        ∧                        ∧
   *        |                        |
-  *     1  |  2                   4 | 1
-  *   5---------6              5---------2
-  *     3  |  4                   6 | 3
+  *     1  |  4                   1 | 2
+  *   2---------5              3---------4
+  *     3  |  6                   5 | 6
   *        |                        |
   */
 SOTF_typeDef FLpfPWM1;
@@ -470,15 +470,8 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
         Ry = yaw * pi / 180; //角度转弧度
         Rp = pitch * pi / 180;
         Rr = roll * pi / 180;
-        //  fy=-1*CInfz*sin(Rp);
-        //  fx=CInfz*sin(Rr);
-        //  fz=CInfx*sin(Rr)-CInfy*sin(Rp);
         CInfx = SetValf32((Fx - fx) / (cos(Rr) + 0.000001), ROV_Val.Fxmin, ROV_Val.Fxmax);
         CInfy = SetValf32((Fy - fy) / (cos(Rp) + 0.000001), ROV_Val.Fymin, ROV_Val.Fymax);
-        //  CInfz=SetValf32((Fz-fz)/(cos(Rp)*cos(Rr)+0.000001),ROV_Val.Fzmin,ROV_Val.Fzmax);
-        //  CInfyaw=SetValf32(Fyaw+KxCompToYaw*CInfx,ROV_Val.Fyawmin,ROV_Val.Fyawmax);
-        //  CInfpitch=SetValf32(Fpitch,ROV_Val.Fpitchmin,ROV_Val.Fpitchmax);
-        //  CInfroll=SetValf32(Froll,ROV_Val.Frollmin,ROV_Val.Frollmax);
     }
 
     float kx, ky, Addkxy, kyaw, kz, kroll, Addkrz;
@@ -488,7 +481,7 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
     kyaw   = GetThrottleKpower(CInfyaw, ROV_Val.Fyawmin, ROV_Val.Fyawmax);
     Addkxy = (OutputMax(kx, ky) + kyaw) - 1; //似皆硕?溢出
     if (Addkxy > 0)
-    { //缩小似接兔?
+    { 
         CInfx = CInfx * (kx - Addkxy) / (kx + 0.000001);
         CInfy = CInfy * (ky - Addkxy) / (ky + 0.000001);
     }
@@ -527,8 +520,8 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
         //进行版本转换，不同电机编号对应
         PROP1 = MotorPWMMidVal[0];
         PROP2 = MotorPWMMidVal[3];
-        PROP3 = MotorPWMMidVal[5];
-        PROP4 = MotorPWMMidVal[2];
+        PROP3 = MotorPWMMidVal[2];
+        PROP4 = MotorPWMMidVal[5];
         PROP5 = MotorPWMMidVal[1];
         PROP6 = MotorPWMMidVal[4];
     }
@@ -539,7 +532,7 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
         PROP3 = ForceToESC(BufFoxy[3] + BufFzo[3] + BufFyaw[3] + BufFpitch[3] + BufFroll[3], -1, MotorPWMMidVal[2]); //左后
         PROP4 = ForceToESC(BufFoxy[4] + BufFzo[4] + BufFyaw[4] + BufFpitch[4] + BufFroll[4], -1, MotorPWMMidVal[5]); //右后
         PROP5 = ForceToESC(BufFoxy[5] + BufFzo[5] + BufFyaw[5] + BufFpitch[5] + BufFroll[5], -1, MotorPWMMidVal[1]); //左中
-        PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], -1, MotorPWMMidVal[4]); //右中
+        PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], 1, MotorPWMMidVal[4]); //右中
     }
 
     IIR_2OrderLpf_Init(&FLpfPWM5, 50, 4);

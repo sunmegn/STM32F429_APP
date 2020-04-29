@@ -61,13 +61,22 @@ typedef struct
     int16_t LeftRightTurn;
     int16_t UpDown;
     uint8_t throttle; //上位机设置油门档位
+
     int16_t setyaw;
     int32_t setdepth;
     int16_t setspeed;
     int16_t setheigh;
-    int16_t light;          //灯
-    int16_t ptz;            //云台
-    int16_t manipulator[2]; //机械臂,两轴
+    int16_t light;           //灯
+    int16_t ptz;             //云台
+                             //int16_t manipulator[2]; //机械臂,两轴
+    int16_t ARM2ASIS_linear; //机械臂,两轴 爪子
+    int16_t ARM2ASIS_rotate; //机械臂,两轴 旋转
+    uint8_t SonarBUTTON;     //手柄上 声呐按键
+
+    uint8_t ReserveBUTTON1; //手柄上 自定义按键1
+    uint8_t ReserveBUTTON2; //手柄上 自定义按键2
+
+    DateTime_t DateTime;
 } mtlink_all_CMD_t;
 
 typedef union {
@@ -165,40 +174,9 @@ typedef struct
 /*
 * 上传状态信息结构体
 */
-// typedef struct
-// {
-//     uint8_t             ctrlmode;
-//     ErrorCodeParam_t    errorcode;
-//     SensorParam_t       sensors_data;
-//     PressureParam_t     pressure_data;
-//     IMUParam_t          imu_data;
-//     CtrlFeedBackParam_t ctrlfeedback;
-//     MotorParam_t        motor;
-//     Reserve_t           reve;
-// } AllInfoToPC_msg_t;
-/*
-* 上传状态信息结构体
-*/
 typedef struct
 {
     uint8_t InitState;
-    struct
-    {
-        //此部分 十六进制 显示
-        uint16_t SHT35_code;
-        uint16_t HB303_code;
-        uint16_t Voltage_code;
-
-        uint16_t Pressure_code;
-        uint16_t Gyro_code;
-        uint16_t Compass_code;
-        uint16_t MPU6050_code;
-
-        uint16_t PTZ_SW;
-        uint16_t PTZ_CW;
-
-        uint16_t Motor_code;
-    } ErrorCode; //报错码  小窗口打印显示或绘图
 
     struct
     {
@@ -278,8 +256,9 @@ typedef struct
 
     struct
     {
-        float   getpos; //云台当前角度
-        uint8_t SW;     //云台 当前状态 （十六进制显示）
+        float    getpos; //云台当前角度
+        uint32_t nowCnt; //当前位置
+        uint8_t  SW;     //云台 当前状态 （十六进制显示）
     } HolderData;
 
     struct
@@ -296,10 +275,14 @@ typedef struct
 
     struct
     {
-        uint16_t Taskruntime[17];
+        uint8_t  cabinState[2];
+        uint16_t cabinErrDode[2];
+
         uint8_t  SenserState[10];
+        uint16_t errorCode[10];
         float    SenserFreq[10];
         float    SenserPackNum[10];
+        uint16_t Taskruntime[17];
     } TaskAndSenser;
 
     struct
@@ -314,18 +297,18 @@ typedef struct
 
 typedef struct
 {
-    u8    isRunMode;
-    short FB_rocker;
-    short LR_rocker;
-    short UD_rocker;
-    short TURN_rocker;
-    float yaw;
-    float pitch;
-    float roll;
-    float depth;
-    float grayX;
-    float grayY;
-    float grayZ;
+    u8      isRunMode;
+    int16_t FB_rocker;
+    int16_t LR_rocker;
+    int16_t UD_rocker;
+    int16_t TURN_rocker;
+    float   yaw;
+    float   pitch;
+    float   roll;
+    float   depth;
+    float   grayX;
+    float   grayY;
+    float   grayZ;
 } ControlParam_t;
 
 #pragma pack()

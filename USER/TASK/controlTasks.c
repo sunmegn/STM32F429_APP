@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
  * @LastEditors:smake
- * @LastEditTime:2020-04-18 16:15:24
+ * @LastEditTime:2020-04-24 11:03:22
  * @brief         :
  */
 
@@ -27,17 +27,16 @@ CtrlFeedBackParam_t ctrlreback;
 float               SetTmpPressure = 0;
 int8_t              flag           = 0;
 AllPIDArg_typedef   AllPIDArgument;
-
-Tottle_Crotypedef TottleCro;
-float             heading_ref = 0, depth_ref = 0, roll_ref = 0; //,depthspeedref = 0.0,yawspeedref = 0.0;
-extern CtrlPara_t ctrlpara_data;
-bool              Closestate    = true;
-float             depthspeed    = 0;
-float             DeepOffset    = 38;
-RockerLimit_t     RockerLimOY   = {0};
-RockerLimit_t     RockerLimOX   = {0};
-RockerLimit_t     RockerLimOYAW = {0};
-RockerLimit_t     RockerLimZO   = {0};
+Tottle_Crotypedef   TottleCro;
+float               heading_ref = 0, depth_ref = 0, roll_ref = 0;
+extern CtrlPara_t   ctrlpara_data;
+bool                Closestate    = true;
+float               depthspeed    = 0;
+float               DeepOffset    = 38;
+RockerLimit_t       RockerLimOY   = {0};
+RockerLimit_t       RockerLimOX   = {0};
+RockerLimit_t       RockerLimOYAW = {0};
+RockerLimit_t       RockerLimZO   = {0};
 
 /**
  * @function_name:doLostHeartBeat
@@ -68,7 +67,7 @@ void ControlTask_Function(void const *argument)
     // AllPIDArgument = ;//TODO 修正从flash读写PID值
     NLPID_Init();
     Cal6FreedomForceValue(30, PROPFMin, PROPFMax);
-    AllRocker_Init(500, 0.02, 200, -1000, 1000); //摇杆值转化成力函数参数初始化,限制死区，极值。
+    AllRocker_Init(500, 0.02, 100, -1000, 1000); //摇杆值转化成力函数参数初始化,限制死区，极值。
     IIR_2OrderLpf_Init(&CloseLoopUD, 50, 2);
     //计算周期10ms以内，8ms
     while (1)
@@ -111,16 +110,7 @@ void ControlTask_Function(void const *argument)
             {
                 if (fabs(myctrlparam.TURN_rocker) > 0)
                 {
-                    heading_ref = myctrlparam.yaw + YAWCODE2ANG(RockerLimit(-1 * myctrlparam.TURN_rocker, 20, -100, 100)); //将输入摇杆值转换成角度，并计算当前需要的航向值
-                }
-
-                if (heading_ref > 180)
-                {
-                    heading_ref -= 360;
-                }
-                if (heading_ref < -180)
-                {
-                    heading_ref += 360;
+                    heading_ref = myctrlparam.yaw + YAWCODE2ANG(RockerLimit(-1 * myctrlparam.TURN_rocker, 10, -100, 100)); //将输入摇杆值转换成角度，并计算当前需要的航向值
                 }
                 ctrlpara_data.pid_head = heading_ref;
                 TottleCro.Tyaw         = YAWPID_Control(&YawNLPID, 1 * myctrlparam.yaw, myctrlparam.grayZ, heading_ref); //heading_ref
@@ -136,7 +126,7 @@ void ControlTask_Function(void const *argument)
             {
                 if (fabs(myctrlparam.UD_rocker) > 0)
                 {
-                    depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 1.0, 20, -100, 100)));
+                    depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 1.0, 10, -100, 100)));
                 }
 
                 if (depth_ref < 0)
@@ -160,6 +150,7 @@ void ControlTask_Function(void const *argument)
 
             //控制输出
             ThrottleToForceControl(Closestate, TottleCro.Tx, TottleCro.Ty, TottleCro.Tz, TottleCro.Tyaw, TottleCro.Tpith, TottleCro.Troll, myctrlparam.yaw, myctrlparam.pitch, myctrlparam.roll);
+
             vTaskDelayUntil(&tick, 20);
         }
         else
