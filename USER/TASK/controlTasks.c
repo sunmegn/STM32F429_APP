@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors:smake
- * @LastEditTime:2020-04-24 11:03:22
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-04-30 14:52:30
  * @brief         :
  */
 
@@ -452,7 +452,7 @@ void NLPID_Init(void)
     DeepNLPID.OIntf.den[2] = 0;
     /*********/
     DeepNLPID.OP      = 2;     //0.01;//0.02;//4;//0.215;//0.6;0.15,0.0043
-    DeepNLPID.OI      = 0.003; //0.0003;//0.05;//0.25;//0.25;//0.1;0.005
+    DeepNLPID.OI      = 0.000; //0.0003;//0.05;//0.25;//0.25;//0.1;0.005
     DeepNLPID.OD      = 0.0;
     DeepNLPID.OeImax  = 500; //100
     DeepNLPID.OoutMax = 1500;
@@ -460,8 +460,8 @@ void NLPID_Init(void)
 
     DeepNLPID.falnum = 1.1; //1.2
     DeepNLPID.INVal  = 50;
-    DeepNLPID.IP     = 2;   //690;//270;//8;//9;8£¨0.1
-    DeepNLPID.II     = 0.5; //0.45;//3.00;//0.1;//0.08;0.1
+    DeepNLPID.IP     = 2; //690;//270;//8;//9;8£¨0.1
+    DeepNLPID.II     = 0; //0.45;//3.00;//0.1;//0.08;0.1
     DeepNLPID.ID     = 0;
 
     DeepNLPID.IeImax = 300;
@@ -504,8 +504,10 @@ void NLPID_Init(void)
     RollNLPID.falnum = 1;
     RollNLPID.INVal  = 25;
     RollNLPID.IP     = 2.4;
-    RollNLPID.II     = 0.332;
-    RollNLPID.ID     = 0.004;
+    RollNLPID.II     = 0;
+    RollNLPID.ID     = 0;
+    //    RollNLPID.II     = 0.332;
+    //    RollNLPID.ID     = 0.004;
 
     RollNLPID.IeImax = 300;
     /***ƒ⁄ª∑ ‰»Î****/

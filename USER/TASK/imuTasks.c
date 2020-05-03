@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors:smake
- * @LastEditTime:2020-04-24 17:15:57
+ * @LastEditors	  :smake
+ * @LastEditTime  :2020-04-24 17:15:57
  * @brief         : 惯导任务函数
  */
 
@@ -17,7 +17,7 @@ extern u8                  SwitchToConfigMode[8];
 extern u8                  GetAllStatus[8];
 extern CtrlPara_t          ctrlpara_data;
 extern u8                  is_imustatus;
-float                imu_yaw_real        = 0;
+float                      imu_yaw_real        = 0;
 change_imu_yaw_val_typedef changed_imu_yaw_val = {0};
 float                      two_Imu_yaw_error   = 0;
 

@@ -14,7 +14,7 @@
 #include "stmflash.h"
 #include "IAP.h"
 
-void       ledTask_Function(void const *argument)
+void ledTask_Function(void const *argument)
 {
     portTickType tick     = xTaskGetTickCount();
     u8           my_id[1] = {2};

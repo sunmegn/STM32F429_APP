@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors:smake
- * @LastEditTime:2020-04-29 17:53:08
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-04-29 17:53:08
  * @brief         : 该任务负责与上位机进行数据传输，主要负责数据的上传
  */
 #include "messageTasks.h"
@@ -219,7 +219,7 @@ void MessageTask_Function(void const *argument)
 
         //机械臂
         RovInfo_msg.ArmData.getLinear = motor_line.send_position;
-        RovInfo_msg.ArmData.getRotate = myctrl_data.ARM2ASIS_rotate;
+        RovInfo_msg.ArmData.getRotate = motor_rotate.send_position;
         //云台角度
         RovInfo_msg.HolderData.getpos = myctrl_data.ptz * 6 / 10;
 

@@ -9,7 +9,8 @@ void Jump_To_Bootloader(void)
     FLASH_WaitForLastOperation(FLASH_WAITETIME);
     STMFLASH_Write_Byte(UPDATA_FLAG_ADDR, 0x00); //Ìø×ªµ½bootloader
     HAL_Delay(20);
-
+    __set_FAULTMASK(1);
+    NVIC_SystemReset();
     if (STMFLASH_Read_Byte(UPDATA_FLAG_SECTOR) == 0)
     {
         __set_FAULTMASK(1);

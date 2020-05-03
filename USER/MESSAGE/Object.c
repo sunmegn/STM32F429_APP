@@ -106,30 +106,42 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
     g_HeartBeatCnt = 0;
     switch (obj)
     {
-    case CMD_REBOOT_ID:     //        		0x2000
+    case CMD_REBOOT_ID:     //0x2000
         NVIC_SystemReset(); //软件复位
         break;
-    case CMD_DEBUG_ID: //        		0x2001
+    case CMD_DEBUG_ID: //0x2001
         //进入调试模式
         g_nowWokeMode = DEBUGMODE;
         break;
-    case CMD_VERSION_ID: //      		0x2002
+    case CMD_VERSION_ID: //0x2002
         //返回软件版本号
         LoadVersion(&MyVersion, 1.0, "SunMeng", 2020, 4, 23, 12, 23);
         MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, CMD_VERSION_ID, (uint8_t *)&MyVersion, sizeof(AUV_Version_Typedef), 10);
         break;
-    case CMD_GOTOBL_ID: //        	0x2004
+    case CMD_GOTOBL_ID: //0x2004
         Jump_To_Bootloader();
         break;
-    case CMD_ALL_ID: //              0x3006
+    case CMD_ALL_ID: //0x3006
         memcpy(&ctrl_cmd, rxbuf, sizeof(mtlink_all_CMD_t));
         ctrl_cmd.UpDown = (-1) * ctrl_cmd.UpDown;
         LED_SetPwm(CONSTRAIN(ctrl_cmd.light * 20, 5000, 0));
-        YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 4 + 1500, 1900, 1100)); //控制摄像头舵机
+        YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 8 + 1100, 1900, 1100)); //控制摄像头舵机
         if (ctrl_cmd.ReserveBUTTON1)
         {
             HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_15);
         } //继电器给激光尺上电断电
+        if (ctrl_cmd.ARM2ASIS_linear == 1)
+        {
+            RoboHand_Pwm = MANIPULATOR_MID - 100;
+        }
+        else if (ctrl_cmd.ARM2ASIS_linear == -1)
+        {
+            RoboHand_Pwm = MANIPULATOR_MID + 100;
+        }
+        else
+        {
+            RoboHand_Pwm = MANIPULATOR_MID;
+        }
 
         if (DataManageQueue)
             xQueueOverwrite(DataManageQueue, &ctrl_cmd);
@@ -137,7 +149,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
     case CMD_SONAR852_ID:
     {
         memcpy(Sonar852_Data.Sonar852_Header, rxbuf, 27);
-		ctrl_cmd_SonarFlag=1;
+        ctrl_cmd_SonarFlag = 1;
         taskENTER_CRITICAL();                                   //临界区保护
         sonar852_sendHeader(Sonar852_Data.Sonar852_Header, 27); //852声呐数据请求头长度固定为27位
         taskEXIT_CRITICAL();

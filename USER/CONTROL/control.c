@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
- * @LastEditors:smake
- * @LastEditTime:2020-04-18 18:31:55
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-04-30 15:36:53
  * @brief         :电机控制函数组
  */
 #include "control.h"
@@ -421,12 +421,12 @@ float GetThrottleKpower(float x, float min, float max)
   * @param	roll:当前roll角
   * @retval void
   * @以下为控制量输出与推进器对应关系
-  *        ∧                        ∧
-  *        |                        |
-  *     1  |  4                   1 | 2
-  *   2---------5              3---------4
-  *     3  |  6                   5 | 6
-  *        |                        |
+  *        ∧     
+  *        |      
+  *     1  |  4   
+  *   2---------5 
+  *     3  |  6   
+  *        |      
   */
 SOTF_typeDef FLpfPWM1;
 SOTF_typeDef FLpfPWM2;
@@ -467,9 +467,9 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
     //三方向被动力补偿
     if (Closestate == true)
     {
-        Ry = yaw * pi / 180; //角度转弧度
-        Rp = pitch * pi / 180;
-        Rr = roll * pi / 180;
+        Ry    = yaw * pi / 180; //角度转弧度
+        Rp    = pitch * pi / 180;
+        Rr    = roll * pi / 180;
         CInfx = SetValf32((Fx - fx) / (cos(Rr) + 0.000001), ROV_Val.Fxmin, ROV_Val.Fxmax);
         CInfy = SetValf32((Fy - fy) / (cos(Rp) + 0.000001), ROV_Val.Fymin, ROV_Val.Fymax);
     }
@@ -481,7 +481,7 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
     kyaw   = GetThrottleKpower(CInfyaw, ROV_Val.Fyawmin, ROV_Val.Fyawmax);
     Addkxy = (OutputMax(kx, ky) + kyaw) - 1; //似皆硕?溢出
     if (Addkxy > 0)
-    { 
+    {
         CInfx = CInfx * (kx - Addkxy) / (kx + 0.000001);
         CInfy = CInfy * (ky - Addkxy) / (ky + 0.000001);
     }
@@ -503,8 +503,8 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
     Addkrz = kz + kroll - 1;
     //竖直方向定深优先
     if (Addkrz > 0)
-    {                                                                //缩小侧倾油门
-        CInfroll = CInfroll * (kroll - Addkrz) / (kroll + 0.000001); //
+    { //缩小侧倾油门
+        CInfroll = CInfroll * (kroll - Addkrz) / (kroll + 0.000001);
     }
     //对应到每个推进器
     //水平
@@ -532,7 +532,7 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
         PROP3 = ForceToESC(BufFoxy[3] + BufFzo[3] + BufFyaw[3] + BufFpitch[3] + BufFroll[3], -1, MotorPWMMidVal[2]); //左后
         PROP4 = ForceToESC(BufFoxy[4] + BufFzo[4] + BufFyaw[4] + BufFpitch[4] + BufFroll[4], -1, MotorPWMMidVal[5]); //右后
         PROP5 = ForceToESC(BufFoxy[5] + BufFzo[5] + BufFyaw[5] + BufFpitch[5] + BufFroll[5], -1, MotorPWMMidVal[1]); //左中
-        PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], 1, MotorPWMMidVal[4]); //右中
+        PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], -1, MotorPWMMidVal[4]); //右中
     }
 
     IIR_2OrderLpf_Init(&FLpfPWM5, 50, 4);

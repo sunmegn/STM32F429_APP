@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:48
- * @LastEditors:Robosea
- * @LastEditTime:2020-04-09 20:05:07
+ * @LastEditors   :Robosea
+ * @LastEditTime  :2020-04-09 20:05:07
  * @FilePath      :\ROV_F429_APP-10-10\USER\TASK\pressureTasks.c
  * @brief         :压力控制任务函数
  */
@@ -26,8 +26,10 @@ void pressureTask_Function(void const *argument)
 #ifdef DEBUG
 
 #else
+        //        taskENTER_CRITICAL();
         MS5837_GetData(&pressure_raw);
-		xQueueOverwrite(Pressure_Message_Queue, &pressure_raw);
+        //        taskEXIT_CRITICAL();
+        xQueueOverwrite(Pressure_Message_Queue, &pressure_raw);
 #endif
         //		osDelay(50);
         vTaskDelayUntil(&tick, 20);

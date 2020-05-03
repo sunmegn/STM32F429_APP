@@ -122,7 +122,7 @@ void MX_FREERTOS_Init(void) {
   messageTaskHandle = osThreadCreate(osThread(messageTask), NULL);
 
   /* definition and creation of SensorTask */
-  osThreadDef(SensorTask, SensorTask_Function, osPriorityLow, 0, 512);
+  osThreadDef(SensorTask, SensorTask_Function, osPriorityIdle, 0, 512);
   SensorTaskHandle = osThreadCreate(osThread(SensorTask), NULL);
 
   /* definition and creation of controlTask */
@@ -130,7 +130,7 @@ void MX_FREERTOS_Init(void) {
   controlTaskHandle = osThreadCreate(osThread(controlTask), NULL);
 
   /* definition and creation of pressureTask */
-  osThreadDef(pressureTask, pressureTask_Function, osPriorityIdle, 0, 512);
+  osThreadDef(pressureTask, pressureTask_Function, osPriorityRealtime, 0, 512);
   pressureTaskHandle = osThreadCreate(osThread(pressureTask), NULL);
 
   /* definition and creation of imuTask */
@@ -142,7 +142,7 @@ void MX_FREERTOS_Init(void) {
   ledTaskHandle = osThreadCreate(osThread(ledTask), NULL);
 
   /* definition and creation of Sonar852 */
-  osThreadDef(Sonar852, Sonar852Task_Function, osPriorityNormal, 0, 512);
+  osThreadDef(Sonar852, Sonar852Task_Function, osPriorityLow, 0, 512);
   Sonar852Handle = osThreadCreate(osThread(Sonar852), NULL);
 
   /* definition and creation of manipulaterTask */
