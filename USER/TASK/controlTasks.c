@@ -126,7 +126,7 @@ void ControlTask_Function(void const *argument)
             {
                 if (fabs(myctrlparam.UD_rocker) > 0)
                 {
-                    depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 1.0, 10, -100, 100)));
+                    depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 2.0, 10, -100, 100)));
                 }
 
                 if (depth_ref < 0)

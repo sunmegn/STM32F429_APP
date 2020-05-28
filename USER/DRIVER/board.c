@@ -139,6 +139,7 @@ u32 getRunTime(u8 n)
 void BSP_Init(void)
 {
     PowerON_SwitchSelfHold();   //电源开关锁存
+	CtrlMidPwmInit();
     PCA9685_Init();             //IIC 16路PWM输出
     MS5837_Init();              //压传
     SHT35_Init();               //舱内温湿度
@@ -150,7 +151,7 @@ void BSP_Init(void)
     PWM_Init();                 //LED大灯PWM
     MessageInit();
     PID_Init();
-    CtrlMidPwmInit();
+    
     //  测试demo
     //  PWM_Test_Demo();
     //	PCA9685_Test_Demo();

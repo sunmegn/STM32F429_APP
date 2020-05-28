@@ -69,12 +69,12 @@ int manipulater_D2_RS485Init(void)
 #else
 
     //小环在外
-//        motor_line.set_position_min = -1; //设置直线电机转动正向极限位置，安全起见，设置值比极值略小-6,6.5
-//        motor_line.set_position_max = 4.5;
+        motor_line.set_position_min = -1; //设置直线电机转动正向极限位置，安全起见，设置值比极值略小-6,6.5
+        motor_line.set_position_max = 4.5;
 
 //    //小环在内
-    motor_line.set_position_min = -2.6; //设置直线电机转动正向极限位置，安全起见，设置值比极值略小-1,4.5
-    motor_line.set_position_max = 3.1;
+//    motor_line.set_position_min = -3.8; //设置直线电机转动正向极限位置，安全起见，设置值比极值略小-1,4.5
+//    motor_line.set_position_max = 1.5;
 
     motor_line.set_velocity_min   = 0;
     motor_line.set_velocity_max   = 0;

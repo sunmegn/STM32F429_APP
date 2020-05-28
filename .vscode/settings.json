@@ -16,5 +16,25 @@
     "markdown.preview.fontSize": 12,
     "vim.easymotionMarkerFontSize": "12",
     "editor.fontSize": 13,
-    "C_Cpp.errorSquiggles": "Disabled"
+    "C_Cpp.errorSquiggles": "Disabled",
+    "cSpell.enableFiletypes": [
+        "!haskell",
+        "!jade",
+        "!php",
+        "!plaintext",
+        "!pug",
+        "!restructuredtext",
+        "!rust",
+        "!scala",
+        "!scss",
+        "!text",
+        "!typescript",
+        "!typescriptreact",
+        "bat",
+        "c",
+        "ignore",
+        "ruby",
+        "vimrc",
+        "xml"
+    ]
 }

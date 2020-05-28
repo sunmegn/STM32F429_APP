@@ -533,6 +533,7 @@ void SixFreedomForceControl(bool Closestate, float Fx, float Fy, float Fz, float
         PROP4 = ForceToESC(BufFoxy[4] + BufFzo[4] + BufFyaw[4] + BufFpitch[4] + BufFroll[4], -1, MotorPWMMidVal[5]); //右后
         PROP5 = ForceToESC(BufFoxy[5] + BufFzo[5] + BufFyaw[5] + BufFpitch[5] + BufFroll[5], -1, MotorPWMMidVal[1]); //左中
         PROP6 = ForceToESC(BufFoxy[6] + BufFzo[6] + BufFyaw[6] + BufFpitch[6] + BufFroll[6], -1, MotorPWMMidVal[4]); //右中
+		//小环在内 1   小环在外 -1
     }
 
     IIR_2OrderLpf_Init(&FLpfPWM5, 50, 4);

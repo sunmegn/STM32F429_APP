@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors   :smake
- * @LastEditTime  :2020-04-29 17:53:08
+ * @LastEditors:smake
+ * @LastEditTime:2020-05-06 19:30:42
  * @brief         : 该任务负责与上位机进行数据传输，主要负责数据的上传
  */
 #include "messageTasks.h"

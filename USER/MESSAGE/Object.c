@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-02-19 14:33:17
  * @LastEditors:smake
- * @LastEditTime:2020-04-27 16:44:09
+ * @LastEditTime:2020-05-06 19:38:32
  * @brief         :
  */
 #include "Object.h"
@@ -125,18 +125,18 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         memcpy(&ctrl_cmd, rxbuf, sizeof(mtlink_all_CMD_t));
         ctrl_cmd.UpDown = (-1) * ctrl_cmd.UpDown;
         LED_SetPwm(CONSTRAIN(ctrl_cmd.light * 20, 5000, 0));
-        YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 8 + 1100, 1900, 1100)); //控制摄像头舵机
+        YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 4 + 1500, 1900, 1100)); //控制摄像头舵机
         if (ctrl_cmd.ReserveBUTTON1)
         {
             HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_15);
         } //继电器给激光尺上电断电
         if (ctrl_cmd.ARM2ASIS_linear == 1)
         {
-            RoboHand_Pwm = MANIPULATOR_MID - 100;
+            RoboHand_Pwm = MANIPULATOR_MID + 100;
         }
         else if (ctrl_cmd.ARM2ASIS_linear == -1)
         {
-            RoboHand_Pwm = MANIPULATOR_MID + 100;
+            RoboHand_Pwm = MANIPULATOR_MID - 100;
         }
         else
         {
@@ -182,7 +182,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
             MotorPWMMidVal[3] = PWMMidFromPC.motormidpwm4;
             MotorPWMMidVal[4] = PWMMidFromPC.motormidpwm5;
             MotorPWMMidVal[5] = PWMMidFromPC.motormidpwm6;
-            motorcalflag      = 1;
+            //motorcalflag      = 1;
             break;
         case 1:
             MotorPWMMidVal[0] = PWMMidFromPC.motormidpwm1;
@@ -208,6 +208,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         default:
             break;
         }
+        break;
     }
     case CMD_SAVECAL_ID: //        	0x6001
     {
@@ -222,6 +223,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         default:
             break;
         }
+        break;
     }
     case CMD_YAWPID_ID: //0x6002
     {
@@ -258,6 +260,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         default:
             break;
         }
+        break;
     }
     case CMD_DEPTHPID_ID: //0x6003
     {
@@ -294,6 +297,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         default:
             break;
         }
+        break;
     }
     case CMD_ROLLPID_ID: //0x6004
     {
@@ -330,6 +334,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         default:
             break;
         }
+        break;
     }
     case CMD_HOSTHEARTBEAT_ID: //        0xF000
         g_HeartBeatCnt = 0;
@@ -355,8 +360,8 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         //         MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, CMD_COMP_ID, (uint8_t *)&xcom, sizeof(XComp_t), 10);
         //         }
         //         break;
-        //    default:
-        //break;
+    default:
+        break;
     }
     return true;
 }

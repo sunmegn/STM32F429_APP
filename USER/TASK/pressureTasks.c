@@ -26,9 +26,9 @@ void pressureTask_Function(void const *argument)
 #ifdef DEBUG
 
 #else
-        //        taskENTER_CRITICAL();
+        
         MS5837_GetData(&pressure_raw);
-        //        taskEXIT_CRITICAL();
+        
         xQueueOverwrite(Pressure_Message_Queue, &pressure_raw);
 #endif
         //		osDelay(50);

@@ -147,7 +147,7 @@ void PCA_MG9XX(u8 num, u8 start_angle, u8 end_angle, u8 mode, u8 speed)
 
 void PCA9685_Init(void)
 {
-    PCA_MG9XX_Init(50, 1500); //初始化舵机驱动  1450全停
+    PCA_MG9XX_Init(50, 1450); //初始化舵机驱动  1450全停
 }
 
 int  test_pwm1 = 1500;
