@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2020-02-19 14:33:17
- * @LastEditors:smake
- * @LastEditTime:2020-05-06 19:38:32
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-05-28 16:24:55
  * @brief         :
  */
 #include "Object.h"
@@ -126,10 +126,6 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         ctrl_cmd.UpDown = (-1) * ctrl_cmd.UpDown;
         LED_SetPwm(CONSTRAIN(ctrl_cmd.light * 20, 5000, 0));
         YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 4 + 1500, 1900, 1100)); //控制摄像头舵机
-        if (ctrl_cmd.ReserveBUTTON1)
-        {
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_15);
-        } //继电器给激光尺上电断电
         if (ctrl_cmd.ARM2ASIS_linear == 1)
         {
             RoboHand_Pwm = MANIPULATOR_MID + 100;

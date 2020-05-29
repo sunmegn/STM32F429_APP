@@ -2,8 +2,8 @@
  * @author        :smake
  * @version       :v1.0.0
  * @Date          :2020-04-20 13:55:45
- * @LastEditors:smake
- * @LastEditTime:2020-04-27 20:01:37
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-05-29 11:28:08
  * @brief         :Á½Öá»úĞµ±ÛÇı¶¯£¬»úĞµ±ÛÊ¹ÓÃ485Í¨ĞÅ£¬Í¨¹ıÖ¸Áî·¢ËÍº¯Êı¿ÉÒÔÏò»úĞµ±Û·¢ËÍÏàÓ¦Ö¸Áî£¬½ÓÊÕº¯Êı¶Ô»úĞµ±Û·µ»ØÖµ½øĞĞ´¦Àí¡£
  */
 #include "manipulaterD2.h"
@@ -33,7 +33,7 @@ float                     manipulater_throtal_D_devid = 0.15f; //Óë¼Ğ×¦Ö´ĞĞÖÜÆÚÁ
 uint8_t                   RsCmd_Len;
 uint8_t                   RsCmd_Crc;
 uint8_t                   RsCmd_device_ID    = 0xFF;
-float                     manipulater_period = 3; //»úĞµ±ÛµÄ¿ØÖÆÖÜÆÚÎªÃüÁîÖÜÆÚµÄ±¶Êı
+float                     manipulater_period = 8; //»úĞµ±ÛµÄ¿ØÖÆÖÜÆÚÎªÃüÁîÖÜÆÚµÄ±¶Êı
 int                       manipulater_times  = 0; //»úĞµ±Û¿ØÖÆÖ¸Áî´ÎÊı
 extern int                ctrl_cmd_SonarFlag;
 uint8_t                   RotOrDir_Flag = 0;     //½»Ìæ·¢ËÍĞı×ªµç»ú£¬¼Ğ×¦µç»úÖ¸Áî±êÖ¾·û
@@ -63,39 +63,34 @@ int manipulater_D2_RS485Init(void)
     {
         ManipulaterQueue = xQueueCreate(1, sizeof(manipulaterQueue_t));
     } while (ManipulaterQueue == NULL);
-#ifdef testmanipulater
-    motor_line.set_position_min = -10;
-    motor_line.set_position_max = 10;
-#else
 
     //Ğ¡»·ÔÚÍâ
-        motor_line.set_position_min = -1; //ÉèÖÃÖ±Ïßµç»ú×ª¶¯ÕıÏò¼«ÏŞÎ»ÖÃ£¬°²È«Æğ¼û£¬ÉèÖÃÖµ±È¼«ÖµÂÔĞ¡-6,6.5
-        motor_line.set_position_max = 4.5;
+    motor_line.runMode          = 0x01;
+    motor_line.set_position_min = 0; //ÉèÖÃÖ±Ïßµç»ú×ª¶¯ÕıÏò¼«ÏŞÎ»ÖÃ£¬°²È«Æğ¼û£¬ÉèÖÃÖµ±È¼«ÖµÂÔĞ¡-6,6.5
+    motor_line.set_position_max = 0;
+    motor_line.set_velocity_min = 0;
+    motor_line.set_velocity_max = 0;
+    motor_line.set_current_min  = 0;
+    motor_line.set_current_max  = 0;
 
-//    //Ğ¡»·ÔÚÄÚ
-//    motor_line.set_position_min = -3.8; //ÉèÖÃÖ±Ïßµç»ú×ª¶¯ÕıÏò¼«ÏŞÎ»ÖÃ£¬°²È«Æğ¼û£¬ÉèÖÃÖµ±È¼«ÖµÂÔĞ¡-1,4.5
-//    motor_line.set_position_max = 1.5;
-
-    motor_line.set_velocity_min   = 0;
-    motor_line.set_velocity_max   = 0;
-    motor_line.set_current_min    = 0;
-    motor_line.set_current_max    = 0;
-    motor_rotate.set_position_min = -12;
-    motor_rotate.set_position_max = 12;
+    motor_rotate.runMode          = 0x03;
+    motor_rotate.set_position_min = 30;
+    motor_rotate.set_position_max = 330;
     motor_rotate.set_velocity_min = 0;
     motor_rotate.set_velocity_max = 0;
     motor_rotate.set_current_min  = 0;
     motor_rotate.set_current_max  = 0;
-#endif
 
-    manipulater_throtal_R_devid = (motor_rotate.set_position_max - motor_rotate.set_position_min) / 200; //ÊÖ±úÖµ³ıÒÔ¸ÃÖµ²¢¼ÓÉÏÖĞÖµ,½«ÊÖ±ú[-100,100]Ó³Éäµ½Î»ÖÃÏŞÖÆ¼«ÏŞÖµ
-    RsCmd_position_Limit_P_Mid  = (motor_line.set_position_min + motor_line.set_position_max) / 2;
-    motor_line.send_position    = 0;
     RsCmd_position_Limit_R_Mid  = (motor_rotate.set_position_min + motor_rotate.set_position_max) / 2;
-    manipulater_throtal_D_devid = (motor_line.set_position_max - motor_line.set_position_min) / (8 / (manipulater_period * 0.040)); //¿ØÖÆ¼Ğ×¦ÕÅ¿ªËÙ¶È8ÎªÒ»¸öĞĞ³ÌÊ±¼ä£¬0.40ÎªÖ¸ÁîÖ´ĞĞÖÜÆÚ£¬manipulater_periodÎª½µÆµ¿ØÖÆ»úĞµ±Û
-    manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_POSITION_SET, NOACK, (uint8_t *)&motor_line.send_position, 4);                 //»úĞµ±ÛÄ¬ÈÏ±ÕºÏ
-                                                                                                                                    //	»úĞµ±Û³õÊ¼Ê¹¼Ğ×¦´¦ÓÚË®Æ½·½Ïò
-    manipulater_D2_send(MOTOR_ROTATE_DRIVER_ID, RS_CMD_POSITION_SET, NOACK, (uint8_t *)&RsCmd_position_Limit_R_Mid, 4);
+    manipulater_throtal_R_devid = (motor_rotate.set_position_max - motor_rotate.set_position_min) / 200; //ÊÖ±úÖµ³ıÒÔ¸ÃÖµ²¢¼ÓÉÏÖĞÖµ,½«ÊÖ±ú[-100,100]Ó³Éäµ½Î»ÖÃÏŞÖÆ¼«ÏŞÖµ
+
+    // manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_MODE, NOACK, (uint8_t *)&motor_line.runMode, RS_CMD_MODE_LEN);
+    // vTaskDelay(100);
+    // manipulater_D2_send(MOTOR_ROTATE_DRIVER_ID, RS_CMD_MODE, NOACK, (uint8_t *)&motor_rotate.runMode, RS_CMD_MODE_LEN);
+
+#ifdef manipulater_To_Mid
+    manipulater_D2_send(MOTOR_ROTATE_DRIVER_ID, RS_CMD_POSITION_SET, NOACK, (uint8_t *)&RsCmd_position_Limit_R_Mid, 4); //	»úĞµ±Û³õÊ¼Ê¹¼Ğ×¦´¦ÓÚË®Æ½·½Ïò
+#endif
     return 0;
 }
 
@@ -116,9 +111,8 @@ void ManipulaterTaskFunction(void const *argument)
                 {
                     if (RotOrDir_Flag == 0)
                     {
-                        motor_line.send_position -= ((float)manipulater_position.float_val[0] * manipulater_throtal_D_devid); //·´Ïò´¦Àí
-                        motor_line.send_position = ConstrainFloat(motor_line.send_position, motor_line.set_position_min, motor_line.set_position_max);
-                        manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_POSITION_SET, NOACK, (uint8_t *)&motor_line.send_position, 4);
+                        motor_line.send_current = -1 * 0.12f * manipulater_position.float_val[0];
+                        manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_CURRENT_SET, NOACK, (uint8_t *)&motor_line.send_current, RS_CMD_CURRENT_SET_LEN);
                         RotOrDir_Flag = 1;
                     }
                     else

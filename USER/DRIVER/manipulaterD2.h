@@ -2,8 +2,8 @@
  * @author        :smake
  * @version       :v1.0.0
  * @Date          :2020-04-20 11:21:14
- * @LastEditors:smake
- * @LastEditTime:2020-04-27 17:04:36
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-05-28 18:28:07
  * @brief         :
  */
 
@@ -53,8 +53,8 @@ struct manipulater_D2_receiveBuf_def
 
 #define NOACK                  0
 #define ACK                    1
-#define MOTOR_LINE_DRIVER_ID   0x01
-#define MOTOR_ROTATE_DRIVER_ID 0x02
+#define MOTOR_LINE_DRIVER_ID   0x02
+#define MOTOR_ROTATE_DRIVER_ID 0x01
 
 #pragma pack(1)
 typedef struct
@@ -92,8 +92,8 @@ typedef struct
 
 #pragma pack()
 
-int manipulater_D2_RS485Init(void);
- void ManipulaterTaskFunction(void const *argument);
-int manipulater_D2_send(uint8_t DID, uint8_t obj, uint8_t ASK, uint8_t *send_data, uint8_t len);
-int manipulater_D2_receive(uint8_t *manipulater_D2_receiveBuf);
+int  manipulater_D2_RS485Init(void);
+void ManipulaterTaskFunction(void const *argument);
+int  manipulater_D2_send(uint8_t DID, uint8_t obj, uint8_t ASK, uint8_t *send_data, uint8_t len);
+int  manipulater_D2_receive(uint8_t *manipulater_D2_receiveBuf);
 #endif
