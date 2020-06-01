@@ -335,6 +335,7 @@ void HAL_USART3_Receive_IDLE(void)
         usart3_Decode(usart3_rxbuf.RX_pData, usart3_rxbuf.RxSize);
         memset(usart3_rxbuf.RX_pData, '\0', usart3_rxbuf.RxSize);
     }
+
     HAL_UART_Receive_DMA(&huart3, usart3_rxbuf.RX_pData, USART3_RX_LEN);
 }
 

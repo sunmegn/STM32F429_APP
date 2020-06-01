@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-04-20 13:55:45
  * @LastEditors   :smake
- * @LastEditTime  :2020-05-29 11:28:08
+ * @LastEditTime  :2020-05-29 14:47:57
  * @brief         :Á½Öá»úÐµ±ÛÇý¶¯£¬»úÐµ±ÛÊ¹ÓÃ485Í¨ÐÅ£¬Í¨¹ýÖ¸Áî·¢ËÍº¯Êý¿ÉÒÔÏò»úÐµ±Û·¢ËÍÏàÓ¦Ö¸Áî£¬½ÓÊÕº¯Êý¶Ô»úÐµ±Û·µ»ØÖµ½øÐÐ´¦Àí¡£
  */
 #include "manipulaterD2.h"
@@ -33,7 +33,7 @@ float                     manipulater_throtal_D_devid = 0.15f; //Óë¼Ð×¦Ö´ÐÐÖÜÆÚÁ
 uint8_t                   RsCmd_Len;
 uint8_t                   RsCmd_Crc;
 uint8_t                   RsCmd_device_ID    = 0xFF;
-float                     manipulater_period = 8; //»úÐµ±ÛµÄ¿ØÖÆÖÜÆÚÎªÃüÁîÖÜÆÚµÄ±¶Êý
+float                     manipulater_period = 3; //»úÐµ±ÛµÄ¿ØÖÆÖÜÆÚÎªÃüÁîÖÜÆÚµÄ±¶Êý
 int                       manipulater_times  = 0; //»úÐµ±Û¿ØÖÆÖ¸Áî´ÎÊý
 extern int                ctrl_cmd_SonarFlag;
 uint8_t                   RotOrDir_Flag = 0;     //½»Ìæ·¢ËÍÐý×ªµç»ú£¬¼Ð×¦µç»úÖ¸Áî±êÖ¾·û
@@ -104,18 +104,18 @@ void ManipulaterTaskFunction(void const *argument)
             xQueueReceive(ManipulaterQueue, &manipulaterQueue_Data, 1);
             if (manipulaterQueue_Data.SonarBUTTON != 1) //ÉùÄÅ¹Ø±Õ£¬Æô¶¯»úÐµ±Û
             {
-                manipulater_position.float_val[0] = (float)manipulaterQueue_Data.line_motor_position;
-                manipulater_position.float_val[1] = (float)manipulaterQueue_Data.rotate_motor_position;
+                manipulater_position.float_val[0] = -(float)manipulaterQueue_Data.line_motor_position;   //Ö±Ïßµç»ú
+                manipulater_position.float_val[1] = -(float)manipulaterQueue_Data.rotate_motor_position; //Ðý×ªµç»ú
 
                 if (manipulater_times >= manipulater_period)
                 {
-                    if (RotOrDir_Flag == 0)
+                    if (RotOrDir_Flag == 0) //Ö±Ïßµç»ú
                     {
-                        motor_line.send_current = -1 * 0.12f * manipulater_position.float_val[0];
+                        motor_line.send_current = 0.14f * manipulater_position.float_val[0];
                         manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_CURRENT_SET, NOACK, (uint8_t *)&motor_line.send_current, RS_CMD_CURRENT_SET_LEN);
                         RotOrDir_Flag = 1;
                     }
-                    else
+                    else //Ðý×ªµç»ú
                     {
                         motor_rotate.send_position = RsCmd_position_Limit_R_Mid + ((float)manipulater_position.float_val[1] * manipulater_throtal_R_devid);
                         motor_rotate.send_position = ConstrainFloat(motor_rotate.send_position, motor_rotate.set_position_min, motor_rotate.set_position_max);
