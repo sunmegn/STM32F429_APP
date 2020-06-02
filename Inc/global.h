@@ -45,6 +45,10 @@ extern u8 gc_initacc_BUTTON; //设备initacc校准
 extern u8 gc_compass_BUTTON; //罗盘校准
 extern u8 gc_initdep_BUTTON;
 extern u8 gc_initzero_BUTTON;
+
+extern uint8_t       g_TimeTestF;
+
+
 enum
 {
     Master = 0,
@@ -159,82 +163,95 @@ typedef union {
 *系统参数
 */
 #pragma pack(1)
-typedef struct{
-	
-	struct{
-	 uint8_t  updataflag;
-	 uint8_t	flagreserve[9];
-	}updataflag;
-	
-	struct{
-	 uint8_t  version[10];
-	}versionstr;
-	
-	struct{
-	 uint8_t  noNULLflag;
-	 uint8_t	flagreserve[15];
-	}EEPROMflag;
-	
-	struct{
-		uint16_t  motormidpwm1;
-		uint16_t motormidpwm2;
-		uint16_t motormidpwm3;
-		uint16_t motormidpwm4;
-		uint16_t motormidpwm5;
-		uint16_t motormidpwm6;
-		uint16_t motormidpwm7;
-		uint16_t motormidpwm8;
-	}motormidpwm;
-	
-	struct{
-		float yawOutP;
-		float yawOutI;
-		float yawOutD;
-		float yawInP;
-		float yawInI;
-		float yawInD;
-	}yawPID;
-	
-	struct{
-		float depOutP;
-		float depOutI;
-		float depOutD;
-		float depInP;
-		float depInI;
-		float depInD;
-	}depPID;
-	
-	struct{
-		float rollOutP;
-		float rollOutI;
-		float rollOutD;
-		float rollInP;
-		float rollInI;
-		float rollInD;
-	}rollPID;
-	
-	struct{
-		float X_YAWcompensation; //补偿
-		float X_ROLLcompensation; 
-		float X_Zcompensation; 
-	}compensation;
-	
-	struct{
-		float acc_init_x;
-		float acc_init_y;
-		float acc_init_z;	
-	}acc_init;
-	
-	struct{
-		float initdepth;
-	}depth_init;
-	
-	struct{
-		uint32_t midholder;
-		int16_t maxang;
-		int16_t minang;
-	}holder_mid;
-}SystemParam_t;
+typedef struct
+{
+
+    struct
+    {
+        uint8_t updataflag;
+        uint8_t flagreserve[9];
+    } updataflag;
+
+    struct
+    {
+        uint8_t version[10];
+    } versionstr;
+
+    struct
+    {
+        uint8_t noNULLflag;
+        uint8_t flagreserve[15];
+    } EEPROMflag;
+
+    struct
+    {
+        uint16_t motormidpwm1;
+        uint16_t motormidpwm2;
+        uint16_t motormidpwm3;
+        uint16_t motormidpwm4;
+        uint16_t motormidpwm5;
+        uint16_t motormidpwm6;
+        uint16_t motormidpwm7;
+        uint16_t motormidpwm8;
+    } motormidpwm;
+
+    struct
+    {
+        float yawOutP;
+        float yawOutI;
+        float yawOutD;
+        float yawInP;
+        float yawInI;
+        float yawInD;
+    } yawPID;
+
+    struct
+    {
+        float depOutP;
+        float depOutI;
+        float depOutD;
+        float depInP;
+        float depInI;
+        float depInD;
+    } depPID;
+
+    struct
+    {
+        float rollOutP;
+        float rollOutI;
+        float rollOutD;
+        float rollInP;
+        float rollInI;
+        float rollInD;
+    } rollPID;
+
+    struct
+    {
+        float X_YAWcompensation; //补偿
+        float X_ROLLcompensation;
+        float X_Zcompensation;
+    } compensation;
+
+    struct
+    {
+        float acc_init_x;
+        float acc_init_y;
+        float acc_init_z;
+    } acc_init;
+
+    struct
+    {
+        float initdepth;
+    } depth_init;
+
+    struct
+    {
+        uint32_t midholder;
+        int16_t  maxang;
+        int16_t  minang;
+    } holder_mid;
+} SystemParam_t;
+
 extern u8    g_nowWokeMode;     //当前工作模式  默认正常工作模式
 extern u8    g_HeartBeatCnt;    //心跳计数
 extern u8    g_runMode;         //控制模式，00 手动模式  01 定航模式  02 定深模式  03 定深定航模式
@@ -246,10 +263,9 @@ extern float g_depthspeed;
 
 float SOTFOutput(SOTF_typeDef *gs, float data);
 void  Rocker_SOTF_Clear(SOTF_typeDef *gs);
-
-void IIR_2OrderLpf_Init(SOTF_typeDef *n, float fs, float fc);
-
-void AccLimit_Init(AccLimit_t *lim, float AccMax, float ts);
-
+void  IIR_2OrderLpf_Init(SOTF_typeDef *n, float fs, float fc);
+void  AccLimit_Init(AccLimit_t *lim, float AccMax, float ts);
 float AccLim(AccLimit_t *lim, float Val);
+
+void MTLinkMsgPrintf(uint8_t SID, uint8_t DID, const char *format, int len);
 #endif

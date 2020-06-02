@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F429xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Drivers/STM32F4xx_HAL_Driver/Inc;             ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;             ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;             ../Drivers/CMSIS/Include;             ..\MDK-ARM;             ../Middlewares/Third_Party/FreeRTOS/Source/include;             ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;             ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;             ..\USER;             ..\USER\CONTROL;             ..\USER\DRIVER;             ..\USER\MATH;             ..\USER\MESSAGE;             ..\USER\TASK;             ..\USER\W5500;             ..\USER\STMFLASH;             ..\USER\Version;             ..\USER\CANNetwork;             ..\Inc</IncludePath>
+              <IncludePath>../Drivers/STM32F4xx_HAL_Driver/Inc;               ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;               ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;               ../Drivers/CMSIS/Include;               ..\MDK-ARM;               ../Middlewares/Third_Party/FreeRTOS/Source/include;               ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;               ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;               ..\USER;               ..\USER\CONTROL;               ..\USER\DRIVER;               ..\USER\MATH;               ..\USER\MESSAGE;               ..\USER\TASK;               ..\USER\W5500;               ..\USER\STMFLASH;               ..\USER\Version;               ..\USER\CANNetwork;               ..\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

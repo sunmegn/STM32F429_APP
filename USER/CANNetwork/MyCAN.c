@@ -46,6 +46,13 @@ static void CANFilterConfig_Scale16_IdList(int ID1, int ID2, int ID3, int ID4, i
     {
         Error_Handler();
     }
+    sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO1;
+    sFilterConfig.FilterActivation     = ENABLE;
+    sFilterConfig.FilterBank           = bank + 14;
+    if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
 }
 static void CANFilterConfig_Scale16_IdListFIFO2(int ID1, int ID2, int ID3, int ID4, int bank)
 {
@@ -107,6 +114,9 @@ void CANopen_Init(void)
 
     HAL_CAN_Start(&hcan1);
     //	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    HAL_CAN_Start(&hcan2);
+    HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING);
+
     CANTransmitThreadCreate(3);
     CANSDOThreadCreate(1);
     CANCMDThreadCreate(2);
@@ -124,7 +134,7 @@ HAL_StatusTypeDef CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t ID, uint8_t *bu
     uint32_t            Basetime = HAL_GetTick();
     uint32_t            nowtime  = Basetime;
     uint8_t *           p        = buf;
-//    txMessage.RTR                = CAN_RTR_DATA;
+    txMessage.RTR                = CAN_RTR_DATA;
     txMessage.ExtId              = 0;
     txMessage.StdId              = ID;
     txMessage.IDE                = CAN_ID_STD; //标准帧
@@ -161,6 +171,63 @@ HAL_StatusTypeDef CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t ID, uint8_t *bu
     return HAL_OK;
 }
 
+QueueHandle_t MyCANRxQueue = NULL;
+static void   CAN1RxQueues_Init(void)
+{
+    do
+    {
+        MyCANRxQueue = xQueueCreate(1, sizeof(CAN_TxRxtypeDef));
+    } while (MyCANRxQueue == NULL);
+}
+/**
+  * @funNm  
+  * @brief  CAN接收回调
+  * @param	
+  * @retval  
+*/
+uint8_t lookbuff[2048] = {0};
+int     lookcnt = 0, lncnt = 0;
+void    HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *CanHandle)
+{
+    CAN_RxHeaderTypeDef RxMessage;
+
+    uint8_t         RxData[8];
+    BaseType_t      xHigherPriorityTaskWoken = NULL;
+    CAN_TxRxtypeDef CAN_Rx;
+    if (CanHandle == &hcan2)
+    {
+        if (HAL_CAN_GetRxMessage(CanHandle, CAN_RX_FIFO1, &RxMessage, RxData) != HAL_OK)
+        {
+            /* Reception Error */
+            Error_Handler();
+        }
+        else
+        {
+            //云台RSDO数据接收处理
+
+            CAN_Rx.COB_ID = RxMessage.StdId;
+            CAN_Rx.len    = RxMessage.DLC;
+            memcpy(CAN_Rx.buf, RxData, 8);
+
+            memcpy(&lookbuff[lookcnt], &RxData[0], 1);
+            lookcnt += 1;
+            if (lookcnt >= 2048)
+            {
+                //				MTLinkMsgPrintf(MY_ID,HOST_ID,"%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",\
+//				lookbuff[0],lookbuff[1],lookbuff[2],lookbuff[3],lookbuff[4],lookbuff[5],lookbuff[6],lookbuff[7],lookbuff[8],lookbuff[9],lookbuff[10],lookbuff[11],lookbuff[12],lookbuff[13],lookbuff[14],lookbuff[15],lookbuff[16],lookbuff[17],lookbuff[18],lookbuff[19]);
+                lookcnt = 0;
+                lncnt++;
+                memset(lookbuff, 0, sizeof(lookbuff));
+            }
+
+            SDO_RPDO_Process(CAN_Rx.COB_ID & 0x7F, CAN_Rx.buf, CAN_Rx.len);
+
+            if (MyCANRxQueue)
+                xQueueSendFromISR(MyCANRxQueue, &CAN_Rx, &xHigherPriorityTaskWoken);
+        }
+    }
+}
+
 QueueHandle_t   CANTransmitQueue = NULL;
 CAN_TxRxtypeDef CanSend;
 osThreadId      CANSendHandle;
@@ -180,7 +247,7 @@ void CanTransmitThread(void const *argument) //CAN发送线程管理
     {
         if (xQueueReceive(CANTransmitQueue, &CanSend, portMAX_DELAY) == pdTRUE)
         {
-            CAN1_Send(&hcan1, &CanSend);
+            CAN1_Send(&hcan2, &CanSend);
         }
     }
 }
@@ -203,7 +270,7 @@ HAL_StatusTypeDef CAN1_Send(CAN_HandleTypeDef *hcan, CAN_TxRxtypeDef *CanTransmi
 {
     static CAN_TxHeaderTypeDef txMessage;
     uint32_t                   TxMailbox;
-    //txMessage.RTR                = CAN_RTR_DATA;
+    txMessage.RTR                = CAN_RTR_DATA;
     txMessage.ExtId              = 0;
     txMessage.StdId              = CanTransmit->COB_ID;
     txMessage.IDE                = CAN_ID_STD; //标准帧
@@ -240,20 +307,27 @@ void       CANRxThreadCreate(int num)
     osThreadDef(CANRx, CanRxThread, num, 0, 1024);
     CANRxHandle = osThreadCreate(osThread(CANRx), NULL);
 }
+
 void CanRxThread(void const *argument) //CAN发送线程管理
 {
     CAN_RxHeaderTypeDef RxMessage;
     uint8_t             RxData[8];
     osDelay(10);
     portTickType tick = xTaskGetTickCount();
+    CAN1RxQueues_Init();
+    CAN_TxRxtypeDef CAN_Rx;
     while (1)
     {
-        while (HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxMessage, RxData) == HAL_OK)
+        if (xQueueReceive(MyCANRxQueue, &CAN_Rx, portMAX_DELAY) == pdPASS)
         {
-            CANOPEN_Rx_Process(RxMessage.StdId, RxData, RxMessage.DLC);
-            osDelay(1);
+            CANOPEN_Rx_Process(CAN_Rx.COB_ID, CAN_Rx.buf, CAN_Rx.len);
         }
-        //		vTaskDelayUntil(&tick,100);
-        osDelay(2);
+        // while (HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxMessage, RxData) == HAL_OK)
+        // {
+        //     CANOPEN_Rx_Process(RxMessage.StdId, RxData, RxMessage.DLC);
+        //     osDelay(1);
+        // }
+        // //		vTaskDelayUntil(&tick,100);
+        // osDelay(2);
     }
 }

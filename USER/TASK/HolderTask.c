@@ -7,7 +7,6 @@
 #include "messageTasks.h"
 #include "MTLink.h"
 
-
 HolderParam_t    HolderParam;
 QueueHandle_t    HolderBackQueue = NULL;
 Holder_t         Holder;
@@ -29,21 +28,15 @@ void HolderTask_func(void const *argument)
 {
     HolderCAN1Queues_Init();
     HolderBackQueue_Init();
-    //ObjectToHolderQueue_Init();
+    ObjectToHolderQueue_Init();
     float codeval;
     char  HolderInitSate = 0;
 
     while (1)
     {
-        /*任务时间获取*/
-        //SystemState.TaskRunTime.taskruntime[HolderTask] = getRunTime(HolderTask);
-
         HolderInitSate = 0;
-        //if (g_DeckState == 1)
-			 if ( 1)
+        if (1)
         {
-            //MTLinkMsgPrintf(MY_ID, HOST_ID, "Begin HolderInit!");
-
             /**云台初始化**/
             if (ZERO_Init(8000) == 0x0f)
             {
@@ -59,7 +52,7 @@ void HolderTask_func(void const *argument)
                 //MTLinkMsgPrintf(MY_ID, HOST_ID, "HolderInit Fail!  SW:0x%02x", SW);
             }
 
-            /**初始云台位置**/
+            /**初始云台位置设置**/
             if (HoldePos_Init() && HolderInitSate == 1)
             {
                 //MTLinkMsgPrintf(MY_ID, HOST_ID, "HolderPosInit Finish!");
@@ -86,8 +79,8 @@ void HolderTask_func(void const *argument)
                 //SystemState.TaskRunTime.taskruntime[HolderTask] = getRunTime(HolderTask);
 
                 /*云台电源判断*/
-//                if (g_DeckState == 0)
-//                    break;
+                //                if (g_DeckState == 0)
+                //                    break;
 
                 if (g_nowWokeMode == DEBUGMODE)
                 {
@@ -115,7 +108,9 @@ void HolderTask_func(void const *argument)
 
                     /**返回云台位置 状态 到数据管理**/
                     if (HolderBackQueue)
+                    {
                         xQueueOverwrite(HolderBackQueue, &HolderParam);
+                    }
 
                     /*云台中值校准*/
                     if (gc_initzero_BUTTON == 1 && HolderInitSate == 1)
@@ -152,12 +147,12 @@ void HolderTask_func(void const *argument)
                     }
 
                     /*云台控制延迟测试*/
-//                    if (HolderParam.TimeTestF == 2)
-//                    {
-//                        MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, CMD_TIMETEST_ID, (uint8_t *)&SysDateTime, sizeof(DateTime_t), 10); //上传PC显示
-//                        //g_TimeTestF           = 0;
-//                        HolderParam.TimeTestF = 0;
-//                    }
+                    //                    if (HolderParam.TimeTestF == 2)
+                    //                    {
+                    //                        MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, CMD_TIMETEST_ID, (uint8_t *)&SysDateTime, sizeof(DateTime_t), 10); //上传PC显示
+                    //                        //g_TimeTestF           = 0;
+                    //                        HolderParam.TimeTestF = 0;
+                    //                    }
 
                     /*云台动作异常判断*/
                     if (HolderPosERRCheak(ValToAngle(HolderParam.setpos, PosParam.maxang, PosParam.minang), -HolderParam.getpos, 5, 500))

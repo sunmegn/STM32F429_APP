@@ -3,10 +3,11 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
  * @LastEditors   :smake
- * @LastEditTime  :2020-06-02 00:42:42
+ * @LastEditTime  :2020-06-02 15:58:28
  * @brief         :
  */
 #include "global.h"
+#include "MTLink.h"
 
 float g_depthspeed = 0.0;
 
@@ -24,6 +25,7 @@ u32 g_UpdateFlag = 0; //默认不更新APP  0 为不更新APP  1 为更新APP
 
 u8 g_LEDWorkMode = 0; //默认不更新APP  0 为不更新APP  1 为更新APP
 
+float Watch[20];
 float g_ptz_pos = 0.0; //云台俯仰角度
 u8    g_SW      = 0;
 u8    g_CW      = 0;
@@ -97,4 +99,19 @@ float AccLim(AccLimit_t *lim, float Val)
     lim->nowv    = lim->fa;
     lim->lastvel = lim->fa;
     return lim->nowv;
+}
+
+uint8_t    g_TimeTestF = 0;
+DateTime_t SysDateTime;
+
+char MTprintbuff[512];
+/**
+ * @function_name:MTLinkMsgPrintf
+ * @brief:
+ * @param :None
+ * @return:None
+ */
+void MTLinkMsgPrintf(uint8_t SID, uint8_t DID, const char *format, int len)
+{
+    MTLink_Encode(&MTLink_UDP, SID, DID, 0, 0x0000, (uint8_t *)format, len, 100);
 }

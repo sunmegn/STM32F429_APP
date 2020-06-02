@@ -42,8 +42,8 @@ typedef uint8_t  u8;
 
 //W5500
 #include "types.h"
-#include "w5500.h"
-#include "socket.h"
+// #include "w5500.h"//引用此头文件会使CanOpen协议中RTR引用错误，引起变量重定义
+// #include "socket.h"
 
 //Control
 #include "control.h"
