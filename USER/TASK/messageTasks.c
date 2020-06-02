@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors:smake
- * @LastEditTime:2020-05-06 19:30:42
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-06-01 23:46:01
  * @brief         : ∏√»ŒŒÒ∏∫‘”Î…œŒªª˙Ω¯–– ˝æ›¥´ ‰£¨÷˜“™∏∫‘ ˝æ›µƒ…œ¥´
  */
 #include "messageTasks.h"
@@ -14,6 +14,7 @@
 #include "pwm.h"
 #include "stmflash.h"
 #include "manipulaterD2.h"
+#include "HolderTask.h"
 
 AllInfoToPC_Msg_t RovInfo_msg = {0}; //”√”⁄…œ¥´÷¡…œŒªª˙µƒ◊‹–≈œ¢
 
@@ -32,12 +33,15 @@ MTLink_typedef           MTLink_UDP        = {0};  //µ•∆¨ª˙Ω” ’∫Õ…œ¥´…œŒªª˙ ˝æ›ª
 QueueHandle_t            MTLinkUDPRxQueue  = NULL; //queue--
 QueueHandle_t            DataManageQueue   = NULL; //queue--¥”…œŒªª˙Ω” ’µΩµƒ ˝æ›
 QueueHandle_t            MTLinkUDPAskQueue = NULL; //queue--UDP”¶¥
+//‘∆Ã®
+QueueHandle_t CtrlToHolderQueue = NULL;
+HolderParam_t HolderCtrl;
 
-static mtlink_all_CMD_t myctrl_data; //…œŒªª˙∑¢ÀÕ÷¡µ•∆¨ª˙øÿ÷∆ ˝æ›
-ControlParam_t          ctrldata;    //øÿ÷∆ ˝æ›
-u32                     MessageTaskRunTimes = 0;
-extern float            heading_ref, depth_ref, roll_ref;
-extern QueueHandle_t    ManipulaterQueue;
+static mtlink_all_CMD_t     myctrl_data; //…œŒªª˙∑¢ÀÕ÷¡µ•∆¨ª˙øÿ÷∆ ˝æ›
+ControlParam_t              ctrldata;    //øÿ÷∆ ˝æ›
+u32                         MessageTaskRunTimes = 0;
+extern float                heading_ref, depth_ref, roll_ref;
+extern QueueHandle_t        ManipulaterQueue;
 
 extern manipulater_controlData_t motor_line;   //÷±œﬂµÁª˙≤Œ ˝
 extern manipulater_controlData_t motor_rotate; //–˝◊™µÁª˙≤Œ ˝
@@ -46,6 +50,32 @@ extern union {
     uint8_t char_val[8];
 } manipulater_position;
 
+/**
+  * @funNm  
+  * @brief  
+  * @param	
+  * @retval 
+*/
+void CtrlToHolderQueue_Init(void)
+{
+    do
+    {
+        CtrlToHolderQueue = xQueueCreate(1, sizeof(HolderParam_t));
+    } while (CtrlToHolderQueue == NULL);
+}
+
+/**
+  * @funNm  
+  * @brief  ‘∆Ã®øÿ÷∆
+  * @param	
+  * @retval 
+*/
+void HOLDER_Control(int16_t PTZ, HolderParam_t *Param)
+{
+    Param->setpos = -PTZ;
+    if (CtrlToHolderQueue)
+        xQueueOverwrite(CtrlToHolderQueue, Param);
+}
 /**
  * @function_name: MTLinkUDP_Init
  * @brief: ≥ı ºªØMTLink£¨¥¥Ω®∂”¡–
@@ -85,6 +115,7 @@ void MessageTask_Function(void const *argument)
     static int   controlT = 0;
     MTLinkUDP_Init();
     MTLinkSetMY_ID(&MTLink_UDP, my_id, sizeof(my_id));
+    CtrlToHolderQueue_Init();
     int len = 100;
     while (1)
     {
@@ -101,6 +132,9 @@ void MessageTask_Function(void const *argument)
         {
             xQueuePeek(DataManageQueue, &myctrl_data, 1);
 
+            xQueueSend(ManipulaterQueue, (uint8_t *)&myctrl_data.ARM2ASIS_linear, 5);
+            HOLDER_Control(myctrl_data.ptz, &HolderCtrl);
+
             /* ROVøÿ÷∆∑¥¿°œ˚œ¢ */
             ctrldata.isRunMode   = myctrl_data.FlightMode;    //øÿ÷∆ƒ£ Ω
             ctrldata.FB_rocker   = myctrl_data.FrontBack;     //“°∏À - «∞∫Û‘À∂Ø
@@ -114,8 +148,6 @@ void MessageTask_Function(void const *argument)
             ctrldata.grayY       = imu_data.gyroy;            //Y÷· - Ω«ÀŸ∂»
             ctrldata.grayZ       = imu_data.gyroz;            //Z÷· - Ω«ÀŸ∂»
             ctrldata.depth       = pressure_data.depth;       //—π¥´ - …Ó∂»
-
-            xQueueSend(ManipulaterQueue, (uint8_t *)&myctrl_data.ARM2ASIS_linear, 5);
         }
 
         //FIXME

@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors:smake
- * @LastEditTime:2020-04-19 00:28:44
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-06-02 00:19:55
  * @brief         :
  */
 #ifndef __OBJECT_H_
@@ -19,16 +19,25 @@
 #define PID_ARGUEMENT_ADDR   ADDR_FLSH_SECTOR_13;
 enum MTLINK_OBJECT
 {
-    CMD_PRINT_ID         = 0X0000,
-    CMD_REBOOT_ID        = 0x2000,
-    CMD_DEBUG_ID         = 0x2001,
-    CMD_VERSION_ID       = 0x2003,
-    CMD_GOTOBL_ID        = 0x2004,
-    CMD_GOTOBLSUCC_ID    = 0x2005,
-    CMD_TOAPPSUCC_ID     = 0x2006,
-    CMD_TOAPPERR_ID      = 0x2007,
-    CMD_GOTOAPP          = 0x2008,
-    CMD_SAVEPARAM_ID     = 0x2009,
+    CMD_PRINT_ID = 0X0000,
+
+    CMD_REBOOT_ID     = 0x2000,
+    CMD_DEBUG_ID      = 0x2001,
+    CMD_VERSION_ID    = 0x2003,
+    CMD_GOTOBL_ID     = 0x2004,
+    CMD_GOTOBLSUCC_ID = 0x2005,
+    CMD_TOAPPSUCC_ID  = 0x2006,
+    CMD_TOAPPERR_ID   = 0x2007,
+    CMD_GOTOAPP       = 0x2008,
+    CMD_SAVEPARAM_ID  = 0x2009,
+
+    CMD_ACCMCAL_ID       = 0x200A, //加速度校准
+    CMD_PRESSUREMCAL_ID  = 0x200B, //压传校准
+    CMD_COMPASSMCAL_ID   = 0x200C, //磁罗盘校准
+    CMD_RESET_ID         = 0x200D, //恢复设置
+    CMD_TIMETEST_ID      = 0x200E, //延时测试
+    CMD_HOLDERMCAL_ID    = 0x200F, //云台校准
+
     CMD_CONTROLMODE_ID   = 0x3000,
     CMD_CONTROL_ID       = 0x3001,
     CMD_LIGHT_ID         = 0x3002,
@@ -43,7 +52,7 @@ enum MTLINK_OBJECT
     CMD_ROLLPID_ID       = 0x6004, //横滚PID调参
     CMD_HOSTHEARTBEAT_ID = 0xF000,
     CMD_APPCODE_ID       = 0xF002,
-	CMD_SONAR852_ID		=0xF003,//852声呐ID
+    CMD_SONAR852_ID      = 0xF003, //852声呐ID
 };
 /*
 *推进器中值结构体

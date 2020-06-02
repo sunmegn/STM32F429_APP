@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-02-19 14:33:17
  * @LastEditors   :smake
- * @LastEditTime  :2020-05-28 16:24:55
+ * @LastEditTime  :2020-06-02 00:22:51
  * @brief         :
  */
 #include "Object.h"
@@ -14,9 +14,11 @@
 #include "messageTasks.h"
 #include "stmflash.h"
 #include "manipulaterD2.h"
-#include "Sonar852Task.h"
+#include "HolderTask.h"
 /*******************变量声明**********************/
-static mtlink_all_CMD_t  ctrl_cmd;
+static mtlink_all_CMD_t ctrl_cmd;
+Holder_t                holder_data; //云台设置参数
+
 extern AllPIDArg_typedef AllPIDArgument;    //用于存放所有的PID参数值
 CloseLoopPID_t           PIDFromPC;         //用于接收上位机发送来的调参数值
 extern NLPID_Typedef     YawNLPID;          //controlTask中定义和使用的YawPID值
@@ -27,8 +29,16 @@ extern int               RoboHand_Pwm;      //设置机械臂PWM值
 extern u8                motorcalflag;      //电机标定标志
 extern u16               MotorPWMMidVal[6]; //控制任务使用的PWM中值
 MotorMidVal_t            PWMMidFromPC;      //用于接收上位机发送来的推进器中值
-extern sonar852_Typedef  Sonar852_Data;
-extern int               ctrl_cmd_SonarFlag;
+
+QueueHandle_t ObjectToHolderQueue; //->HolderTask
+
+void ObjectToHolderQueue_Init(void)
+{
+    do
+    {
+        ObjectToHolderQueue = xQueueCreate(1, sizeof(Holder_t));
+    } while (ObjectToHolderQueue == NULL);
+}
 /**
  * @function_name:MTLinkDispose
  * @brief:判断数据是否为上位机传输
@@ -115,11 +125,18 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         break;
     case CMD_VERSION_ID: //0x2002
         //返回软件版本号
-        LoadVersion(&MyVersion, 1.0, "SunMeng", 2020, 4, 23, 12, 23);
+        LoadVersion(&MyVersion, 2.0, "SunMeng", 2020, 4, 23, 12, 23);
         MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, CMD_VERSION_ID, (uint8_t *)&MyVersion, sizeof(AUV_Version_Typedef), 10);
         break;
     case CMD_GOTOBL_ID: //0x2004
         Jump_To_Bootloader();
+        break;
+    case CMD_HOLDERMCAL_ID: //0x200F//云台校准
+
+        gc_initzero_BUTTON = 1; //云台校准
+        memcpy(&holder_data, rxbuf, sizeof(Holder_t));
+        if (ObjectToHolderQueue)
+            xQueueOverwrite(ObjectToHolderQueue, &holder_data);
         break;
     case CMD_ALL_ID: //0x3006
         memcpy(&ctrl_cmd, rxbuf, sizeof(mtlink_all_CMD_t));
@@ -142,13 +159,8 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         if (DataManageQueue)
             xQueueOverwrite(DataManageQueue, &ctrl_cmd);
         break;
-    case CMD_SONAR852_ID:
+    case CMD_SONAR852_ID: //0xF003
     {
-        memcpy(Sonar852_Data.Sonar852_Header, rxbuf, 27);
-        ctrl_cmd_SonarFlag = 1;
-        taskENTER_CRITICAL();                                   //临界区保护
-        sonar852_sendHeader(Sonar852_Data.Sonar852_Header, 27); //852声呐数据请求头长度固定为27位
-        taskEXIT_CRITICAL();
         break;
     }
     case CMD_CALIBRATION_ID: //      0x6000

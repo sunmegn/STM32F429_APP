@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-04-20 13:55:45
  * @LastEditors   :smake
- * @LastEditTime  :2020-05-29 14:47:57
+ * @LastEditTime  :2020-06-01 22:32:54
  * @brief         :两轴机械臂驱动，机械臂使用485通信，通过指令发送函数可以向机械臂发送相应指令，接收函数对机械臂返回值进行处理。
  */
 #include "manipulaterD2.h"
@@ -53,7 +53,7 @@ float linshiver = 0.f;
  */
 int manipulater_D2_RS485Init(void)
 {
-    //与声呐共用一个485接口，已经在声呐初始化函数中进行初始化
+    //init 485 bus
     // RS485_RE(0);
     // HAL_UART_Receive_DMA(&huart3, usart3_rxbuf.RX_pData, sizeof(usart3_rxbuf.RX_pData));
     // __HAL_UART_CLEAR_IDLEFLAG(&huart3);

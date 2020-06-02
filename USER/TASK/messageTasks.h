@@ -275,15 +275,25 @@ typedef struct
 
     struct
     {
-        uint8_t  cabinState[2];
-        uint16_t cabinErrDode[2];
+        struct
+        {
+            uint8_t  state[2];
+            uint16_t errcode[2];
+        } Cabin;
 
-        uint8_t  SenserState[10];
-        uint16_t errorCode[10];
-        float    SenserFreq[10];
-        float    SenserPackNum[10];
-        uint16_t Taskruntime[17];
-    } TaskAndSenser;
+        struct
+        {
+            uint8_t  state[10];
+            uint16_t errcode[10];
+            float    datafreq[10];
+            float    packloss[10];
+        } SenserAndPeripheral;
+
+        struct
+        {
+            uint16_t taskruntime[17];
+        } TaskRunTime;
+    } SystemState;
 
     struct
     {

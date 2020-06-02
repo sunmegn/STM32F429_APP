@@ -124,7 +124,7 @@ HAL_StatusTypeDef CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t ID, uint8_t *bu
     uint32_t            Basetime = HAL_GetTick();
     uint32_t            nowtime  = Basetime;
     uint8_t *           p        = buf;
-    //txMessage.RTR                = CAN_RTR_DATA;
+//    txMessage.RTR                = CAN_RTR_DATA;
     txMessage.ExtId              = 0;
     txMessage.StdId              = ID;
     txMessage.IDE                = CAN_ID_STD; //±ê×¼Ö¡
@@ -215,24 +215,24 @@ HAL_StatusTypeDef CAN1_Send(CAN_HandleTypeDef *hcan, CAN_TxRxtypeDef *CanTransmi
     return HAL_OK;
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanHandle)
-{
-    CAN_RxHeaderTypeDef RxMessage;
-    uint8_t             RxData[8];
-    /* Get RX message */
-    if (HAL_CAN_GetRxMessage(CanHandle, CAN_RX_FIFO0, &RxMessage, RxData) != HAL_OK)
-    {
-        /* Reception Error */
-        Error_Handler();
-    }
-    if (CanHandle == &hcan1)
-    {
-        CANOPEN_Rx_Process(RxMessage.StdId, RxData, RxMessage.DLC);
-    }
-    //	else if(CanHandle == &hcan2){
-    //		CAN2_RxInterputCallback(RxMessage.ExtId,RxMessage.StdId,RxData,RxMessage.DLC);
-    //	}
-}
+//void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanHandle)
+//{
+//    CAN_RxHeaderTypeDef RxMessage;
+//    uint8_t             RxData[8];
+//    /* Get RX message */
+//    if (HAL_CAN_GetRxMessage(CanHandle, CAN_RX_FIFO0, &RxMessage, RxData) != HAL_OK)
+//    {
+//        /* Reception Error */
+//        Error_Handler();
+//    }
+//    if (CanHandle == &hcan1)
+//    {
+//        CANOPEN_Rx_Process(RxMessage.StdId, RxData, RxMessage.DLC);
+//    }
+//    //	else if(CanHandle == &hcan2){
+//    //		CAN2_RxInterputCallback(RxMessage.ExtId,RxMessage.StdId,RxData,RxMessage.DLC);
+//    //	}
+//}
 
 osThreadId CANRxHandle;
 void       CANRxThreadCreate(int num)

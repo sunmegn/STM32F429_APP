@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
- * @LastEditors   :Robosea
- * @LastEditTime  :2020-02-25 17:53:23
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-06-02 00:42:42
  * @brief         :
  */
 #include "global.h"
@@ -24,6 +24,17 @@ u32 g_UpdateFlag = 0; //默认不更新APP  0 为不更新APP  1 为更新APP
 
 u8 g_LEDWorkMode = 0; //默认不更新APP  0 为不更新APP  1 为更新APP
 
+float g_ptz_pos = 0.0; //云台俯仰角度
+u8    g_SW      = 0;
+u8    g_CW      = 0;
+
+u8 gc_initacc_BUTTON  = 0; //设备initacc校准
+u8 gc_compass_BUTTON  = 0; //罗盘校准
+u8 gc_initdep_BUTTON  = 0;
+u8 gc_initzero_BUTTON = 0;
+
+SystemState_t SystemState;
+SystemParam_t SystemParam;
 /**
   * @funNm  IIR_2OrderLpf_Init
   * @brief  二阶低通滤波器初值计算IIR滤波器形式

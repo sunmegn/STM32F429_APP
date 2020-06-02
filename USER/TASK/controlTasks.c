@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
  * @LastEditors   :smake
- * @LastEditTime  :2020-04-30 14:52:30
+ * @LastEditTime  :2020-06-01 23:11:36
  * @brief         :
  */
 
@@ -88,7 +88,6 @@ void ControlTask_Function(void const *argument)
             {
                 doLostHeartBeat();
             }
-            //		AllRocker_Init(yawPID.OutP,0.02,200,-1000,1000);
             TottleCro.Ty    = RockerValDispose(&RockerLimOY, myctrlparam.FB_rocker * 10.0, 5, 100);
             TottleCro.Tx    = RockerValDispose(&RockerLimOX, myctrlparam.LR_rocker * 10.0, 5, 100);
             TottleCro.Tz    = RockerValDispose(&RockerLimZO, myctrlparam.UD_rocker * 10.0, 5, 100);

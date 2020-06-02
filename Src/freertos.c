@@ -54,7 +54,7 @@ osThreadId controlTaskHandle;
 osThreadId pressureTaskHandle;
 osThreadId imuTaskHandle;
 osThreadId ledTaskHandle;
-osThreadId Sonar852Handle;
+osThreadId HolderTaskHandle;
 osThreadId manipulaterTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,7 +68,7 @@ void ControlTask_Function(void const * argument);
 void pressureTask_Function(void const * argument);
 void imuTask_Function(void const * argument);
 void ledTask_Function(void const * argument);
-void Sonar852Task_Function(void const * argument);
+void HolderTask_func(void const * argument);
 void ManipulaterTaskFunction(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -141,9 +141,9 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(ledTask, ledTask_Function, osPriorityIdle, 0, 128);
   ledTaskHandle = osThreadCreate(osThread(ledTask), NULL);
 
-  /* definition and creation of Sonar852 */
-  osThreadDef(Sonar852, Sonar852Task_Function, osPriorityLow, 0, 512);
-  Sonar852Handle = osThreadCreate(osThread(Sonar852), NULL);
+  /* definition and creation of HolderTask */
+  osThreadDef(HolderTask, HolderTask_func, osPriorityLow, 0, 256);
+  HolderTaskHandle = osThreadCreate(osThread(HolderTask), NULL);
 
   /* definition and creation of manipulaterTask */
   osThreadDef(manipulaterTask, ManipulaterTaskFunction, osPriorityBelowNormal, 0, 512);
@@ -263,22 +263,22 @@ __weak void ledTask_Function(void const * argument)
   /* USER CODE END ledTask_Function */
 }
 
-/* USER CODE BEGIN Header_Sonar852Task_Function */
+/* USER CODE BEGIN Header_HolderTask_func */
 /**
-* @brief Function implementing the Sonar852 thread.
+* @brief Function implementing the HolderTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_Sonar852Task_Function */
-__weak void Sonar852Task_Function(void const * argument)
+/* USER CODE END Header_HolderTask_func */
+__weak void HolderTask_func(void const * argument)
 {
-  /* USER CODE BEGIN Sonar852Task_Function */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-  /* USER CODE END Sonar852Task_Function */
+  /* USER CODE BEGIN HolderTask_func */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END HolderTask_func */
 }
 
 /* USER CODE BEGIN Header_ManipulaterTaskFunction */

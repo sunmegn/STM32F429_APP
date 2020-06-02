@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=F:/RoboOcean/ROV20kg_software/2_ROV_F429_APP-V1.12/Inc
+HeaderPath=F:/RoboOcean/ROV20kg_software/V2.0/2_ROV_F429_APP-V2.0/Inc
 HeaderFiles=gpio.h;adc.h;can.h;dma.h;i2c.h;spi.h;tim.h;usart.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;FreeRTOSConfig.h;gfxsimulator.h;iwdg.h;sys.h;
-SourcePath=F:/RoboOcean/ROV20kg_software/2_ROV_F429_APP-V1.12/Src
+SourcePath=F:/RoboOcean/ROV20kg_software/V2.0/2_ROV_F429_APP-V2.0/Src
 SourceFiles=gpio.c;adc.c;can.c;dma.c;i2c.c;spi.c;tim.c;usart.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;freertos.c;stm32f4xx_hal_timebase_tim.c;gfxsimulator.c;iwdg.c;sys.c;
 
 [PreviousLibFiles]
