@@ -42,8 +42,8 @@ typedef uint8_t  u8;
 
 //W5500
 #include "types.h"
-#include "w5500.h"
-#include "socket.h"
+// #include "w5500.h"
+// #include "socket.h"
 
 //Control
 #include "control.h"

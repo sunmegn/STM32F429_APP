@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:42
- * @LastEditors   :Robosea
- * @LastEditTime  :2020-02-25 17:53:23
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-06-03 00:39:45
  * @brief         :
  */
 #include "global.h"
@@ -24,6 +24,10 @@ u32 g_UpdateFlag = 0; //默认不更新APP  0 为不更新APP  1 为更新APP
 
 u8 g_LEDWorkMode = 0; //默认不更新APP  0 为不更新APP  1 为更新APP
 
+float   g_ptz_pos   = 0.0; //云台俯仰角度
+u8      g_SW        = 0;
+u8      g_CW        = 0;
+uint8_t g_TimeTestF = 0;
 /**
   * @funNm  IIR_2OrderLpf_Init
   * @brief  二阶低通滤波器初值计算IIR滤波器形式

@@ -50,9 +50,9 @@ void ledTask_Function(void const *argument)
             g_HeartBeatCnt++;
             g_LostPC = 0;
         }
-        // BUZZER(1);
-        // osDelay(50);
-        // BUZZER(0);
+        BUZZER(1);
+        osDelay(50);
+        BUZZER(0);
 
         HAL_IWDG_Refresh(&hiwdg); //超过两秒不喂狗，复位重启32k，32, 2000
 #endif

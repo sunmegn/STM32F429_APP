@@ -2,8 +2,8 @@
  * @author        :robosea
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
- * @LastEditors:smake
- * @LastEditTime:2020-05-06 19:30:42
+ * @LastEditors   :smake
+ * @LastEditTime  :2020-06-03 00:26:39
  * @brief         : 该任务负责与上位机进行数据传输，主要负责数据的上传
  */
 #include "messageTasks.h"
@@ -14,6 +14,7 @@
 #include "pwm.h"
 #include "stmflash.h"
 #include "manipulaterD2.h"
+#include "HolderTask.h"
 
 AllInfoToPC_Msg_t RovInfo_msg = {0}; //用于上传至上位机的总信息
 
@@ -41,11 +42,42 @@ extern QueueHandle_t    ManipulaterQueue;
 
 extern manipulater_controlData_t motor_line;   //直线电机参数
 extern manipulater_controlData_t motor_rotate; //旋转电机参数
+
+QueueHandle_t        CtrlToHolderQueue = NULL;
+extern QueueHandle_t HolderBackQueue;
+HolderParam_t        HolderCtrl;
+HolderParam_t        HolderFeedback;
 extern union {
     float   float_val[2];
     uint8_t char_val[8];
 } manipulater_position;
 
+/**
+  * @funNm  
+  * @brief  
+  * @param	
+  * @retval 
+*/
+void CtrlToHolderQueue_Init(void)
+{
+    do
+    {
+        CtrlToHolderQueue = xQueueCreate(1, sizeof(HolderParam_t));
+    } while (CtrlToHolderQueue == NULL);
+}
+
+/**
+  * @funNm  
+  * @brief  云台控制
+  * @param	
+  * @retval 
+*/
+void HOLDER_Control(int16_t PTZ, HolderParam_t *Param)
+{
+    Param->setpos = -PTZ;
+    if (CtrlToHolderQueue)
+        xQueueOverwrite(CtrlToHolderQueue, Param);
+}
 /**
  * @function_name: MTLinkUDP_Init
  * @brief: 初始化MTLink，创建队列
@@ -86,6 +118,7 @@ void MessageTask_Function(void const *argument)
     MTLinkUDP_Init();
     MTLinkSetMY_ID(&MTLink_UDP, my_id, sizeof(my_id));
     int len = 100;
+    CtrlToHolderQueue_Init();
     while (1)
     {
         run_time[1] = getRunTime(1);
@@ -99,7 +132,7 @@ void MessageTask_Function(void const *argument)
         xQueuePeek(Pressure_Message_Queue, &pressure_data, 1); //压传数据接
         if (DataManageQueue)
         {
-            xQueuePeek(DataManageQueue, &myctrl_data, 1);
+            xQueuePeek(DataManageQueue, &myctrl_data, 1); //从队列中获得rov控制数据
 
             /* ROV控制反馈消息 */
             ctrldata.isRunMode   = myctrl_data.FlightMode;    //控制模式
@@ -114,9 +147,9 @@ void MessageTask_Function(void const *argument)
             ctrldata.grayY       = imu_data.gyroy;            //Y轴 - 角速度
             ctrldata.grayZ       = imu_data.gyroz;            //Z轴 - 角速度
             ctrldata.depth       = pressure_data.depth;       //压传 - 深度
-
-            xQueueSend(ManipulaterQueue, (uint8_t *)&myctrl_data.ARM2ASIS_linear, 5);
         }
+        xQueueSend(ManipulaterQueue, (uint8_t *)&myctrl_data.ARM2ASIS_linear, 5);
+        HOLDER_Control(myctrl_data.ptz, &HolderCtrl);
 
         //FIXME
         // if (pressure_data.depth < 5) // 深度小于5cm
@@ -220,8 +253,17 @@ void MessageTask_Function(void const *argument)
         //机械臂
         RovInfo_msg.ArmData.getLinear = motor_line.send_position;
         RovInfo_msg.ArmData.getRotate = motor_rotate.send_position;
-        //云台角度
-        RovInfo_msg.HolderData.getpos = myctrl_data.ptz * 6 / 10;
+
+        /**获取到云台反馈数据**/
+        if (HolderBackQueue)
+        {
+            if (xQueuePeek(HolderBackQueue, &HolderFeedback, 1)) //获取反馈数据
+            {
+                RovInfo_msg.HolderData.getpos = HolderFeedback.getpos;
+                RovInfo_msg.HolderData.nowCnt = HolderFeedback.nowcnt;
+                RovInfo_msg.HolderData.SW     = HolderFeedback.SW;
+            }
+        }
 
         /* 上传 */
         MTLink_Encode(&MTLink_UDP, MY_ID, HOST_ID, 0 /*不需要应答*/, DEVHEARTBEAT_ID, (uint8_t *)&RovInfo_msg, sizeof(RovInfo_msg), 10);

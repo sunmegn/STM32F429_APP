@@ -9,7 +9,9 @@
         "mtlink.h": "c",
         "iap.h": "c",
         "stmflash.h": "c",
-        "control.h": "c"
+        "control.h": "c",
+        "holdertask.h": "c",
+        "zeroholder.h": "c"
     },
     "debug.console.fontSize": 12,
     "terminal.integrated.fontSize": 12,

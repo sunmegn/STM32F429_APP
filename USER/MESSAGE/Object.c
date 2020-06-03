@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-02-19 14:33:17
  * @LastEditors   :smake
- * @LastEditTime  :2020-05-28 16:24:55
+ * @LastEditTime  :2020-06-02 23:30:41
  * @brief         :
  */
 #include "Object.h"
@@ -14,7 +14,6 @@
 #include "messageTasks.h"
 #include "stmflash.h"
 #include "manipulaterD2.h"
-#include "Sonar852Task.h"
 /*******************变量声明**********************/
 static mtlink_all_CMD_t  ctrl_cmd;
 extern AllPIDArg_typedef AllPIDArgument;    //用于存放所有的PID参数值
@@ -27,8 +26,18 @@ extern int               RoboHand_Pwm;      //设置机械臂PWM值
 extern u8                motorcalflag;      //电机标定标志
 extern u16               MotorPWMMidVal[6]; //控制任务使用的PWM中值
 MotorMidVal_t            PWMMidFromPC;      //用于接收上位机发送来的推进器中值
-extern sonar852_Typedef  Sonar852_Data;
-extern int               ctrl_cmd_SonarFlag;
+//云台 Holder
+Holder_t      holder_data;         //云台设置参数
+QueueHandle_t ObjectToHolderQueue; //->HolderTask
+
+void ObjectToHolderQueue_Init(void)
+{
+    do
+    {
+        ObjectToHolderQueue = xQueueCreate(1, sizeof(Holder_t));
+    } while (ObjectToHolderQueue == NULL);
+}
+
 /**
  * @function_name:MTLinkDispose
  * @brief:判断数据是否为上位机传输
@@ -72,7 +81,7 @@ bool MTLinkDispose(uint8_t SID, uint8_t DID, uint16_t obj, uint8_t *buf, int len
  */
 void MTLinkToCANConnect(uint8_t DID, uint16_t obj, uint8_t *buf, uint32_t len)
 {
-    SampleSendBufToCANBus(DID, obj, buf, len, 300);
+    // SampleSendBufToCANBus(DID, obj, buf, len, 300);
 }
 // CAN_OBJ
 bool CANObject_Dispose(int Master_ID, uint16_t object, uint8_t Sub_ID, char RorW, uint8_t *buf, uint32_t *len)
@@ -121,34 +130,24 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
     case CMD_GOTOBL_ID: //0x2004
         Jump_To_Bootloader();
         break;
+    case CMD_HOLDERMCAL_ID: //0x200F//云台校准
+
+//        gc_initzero_BUTTON = 1; //云台校准
+        memcpy(&holder_data, rxbuf, sizeof(Holder_t));
+        if (ObjectToHolderQueue)
+            xQueueOverwrite(ObjectToHolderQueue, &holder_data);
+        break;
     case CMD_ALL_ID: //0x3006
         memcpy(&ctrl_cmd, rxbuf, sizeof(mtlink_all_CMD_t));
         ctrl_cmd.UpDown = (-1) * ctrl_cmd.UpDown;
         LED_SetPwm(CONSTRAIN(ctrl_cmd.light * 20, 5000, 0));
         YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 4 + 1500, 1900, 1100)); //控制摄像头舵机
-        if (ctrl_cmd.ARM2ASIS_linear == 1)
-        {
-            RoboHand_Pwm = MANIPULATOR_MID + 100;
-        }
-        else if (ctrl_cmd.ARM2ASIS_linear == -1)
-        {
-            RoboHand_Pwm = MANIPULATOR_MID - 100;
-        }
-        else
-        {
-            RoboHand_Pwm = MANIPULATOR_MID;
-        }
 
         if (DataManageQueue)
             xQueueOverwrite(DataManageQueue, &ctrl_cmd);
         break;
     case CMD_SONAR852_ID:
     {
-        memcpy(Sonar852_Data.Sonar852_Header, rxbuf, 27);
-        ctrl_cmd_SonarFlag = 1;
-        taskENTER_CRITICAL();                                   //临界区保护
-        sonar852_sendHeader(Sonar852_Data.Sonar852_Header, 27); //852声呐数据请求头长度固定为27位
-        taskEXIT_CRITICAL();
         break;
     }
     case CMD_CALIBRATION_ID: //      0x6000

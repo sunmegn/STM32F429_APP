@@ -35,6 +35,11 @@ typedef unsigned char  u8;
 typedef unsigned short u16;
 typedef unsigned int   u32;
 
+extern float   g_ptz_pos; //云台俯仰角度
+extern u8      g_SW;
+extern u8      g_CW;
+extern uint8_t g_TimeTestF;
+
 #pragma pack(1)
 typedef struct
 {
@@ -69,6 +74,22 @@ typedef struct
     int ms;
 } DateTime_t;
 #pragma pack()
+
+typedef union {
+    u8    ch[4];
+    float val;
+} floatandu8;
+
+typedef union {
+    u8  ch[2];
+    u16 val;
+} u16andu8;
+
+//小端在前
+typedef union {
+    u32 num;        //  当前位置限制为0-524288   根据实际需求改变数据类型
+    u8  numbuff[4]; //
+} u32andu8;
 
 #define CONSTRAIN(x, max, min) ((x) > max ? max : ((x) < min ? min : (x)))
 
