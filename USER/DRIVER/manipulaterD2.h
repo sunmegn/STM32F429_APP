@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-04-20 11:21:14
  * @LastEditors   :smake
- * @LastEditTime  :2020-05-28 18:28:07
+ * @LastEditTime  :2020-06-04 06:08:30
  * @brief         :
  */
 
@@ -61,6 +61,7 @@ typedef struct
 {
     uint8_t driver_id;            //电机ID
     uint8_t runMode;              //电机模式，0：静默模式；1：电流模式；2：速度模式；3：位置模式
+    uint8_t receive_runMode;      //接收到的电机运行模式
     float   send_position;        //发送电机位置
     float   send_velocity;        //发送电机速度
     float   send_current;         //发送电机电流值

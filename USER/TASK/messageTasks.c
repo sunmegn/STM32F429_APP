@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
  * @LastEditors   :smake
- * @LastEditTime  :2020-06-03 00:26:39
+ * @LastEditTime  :2020-06-07 01:24:34
  * @brief         : 该任务负责与上位机进行数据传输，主要负责数据的上传
  */
 #include "messageTasks.h"
@@ -53,10 +53,10 @@ extern union {
 } manipulater_position;
 
 /**
-  * @funNm  
-  * @brief  
-  * @param	
-  * @retval 
+  * @funNm  CtrlToHolderQueue_Init
+  * @brief  云台队列初始化
+  * @param	None
+  * @retval None
 */
 void CtrlToHolderQueue_Init(void)
 {
@@ -67,14 +67,15 @@ void CtrlToHolderQueue_Init(void)
 }
 
 /**
-  * @funNm  
+  * @funNm  HOLDER_Control
   * @brief  云台控制
-  * @param	
-  * @retval 
+  * @param	PTZ 云台俯仰角，单位为度
+  * @param	 *Param 云台参数结构体指针
+  * @retval None
 */
 void HOLDER_Control(int16_t PTZ, HolderParam_t *Param)
 {
-    Param->setpos = -PTZ;
+    Param->setpos = PTZ;
     if (CtrlToHolderQueue)
         xQueueOverwrite(CtrlToHolderQueue, Param);
 }
@@ -117,7 +118,7 @@ void MessageTask_Function(void const *argument)
     static int   controlT = 0;
     MTLinkUDP_Init();
     MTLinkSetMY_ID(&MTLink_UDP, my_id, sizeof(my_id));
-    int len = 100;
+    int len = 100; //
     CtrlToHolderQueue_Init();
     while (1)
     {
@@ -246,7 +247,7 @@ void MessageTask_Function(void const *argument)
 
         //Pressure
         RovInfo_msg.PressureData.Temp     = pressure_data.Temperature;
-        RovInfo_msg.PressureData.Pressure = pressure_data.depth;
+        RovInfo_msg.PressureData.Pressure = pressure_data.depth; //上传显示
         RovInfo_msg.PressureData.Depth    = pressure_data.depth;
         RovInfo_msg.PressureData.Depspeed = k_speed;
 
@@ -259,7 +260,7 @@ void MessageTask_Function(void const *argument)
         {
             if (xQueuePeek(HolderBackQueue, &HolderFeedback, 1)) //获取反馈数据
             {
-                RovInfo_msg.HolderData.getpos = HolderFeedback.getpos;
+                RovInfo_msg.HolderData.getpos = HolderFeedback.getpos + 10; //调整上位机显示值与遥控手柄值相同
                 RovInfo_msg.HolderData.nowCnt = HolderFeedback.nowcnt;
                 RovInfo_msg.HolderData.SW     = HolderFeedback.SW;
             }

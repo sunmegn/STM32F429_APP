@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-04-20 13:55:45
  * @LastEditors   :smake
- * @LastEditTime  :2020-05-29 14:47:57
+ * @LastEditTime  :2020-06-07 01:45:46
  * @brief         :两轴机械臂驱动，机械臂使用485通信，通过指令发送函数可以向机械臂发送相应指令，接收函数对机械臂返回值进行处理。
  */
 #include "manipulaterD2.h"
@@ -25,7 +25,7 @@ manipulater_controlData_t motor_line   = {0}; //直线电机参数
 manipulater_controlData_t motor_rotate = {0}; //旋转电机参数
 uint8_t                   crc8(uint8_t *data, uint16_t length);
 uint8_t                   manipulater_D2_sendBuf[32];
-uint8_t                   manipulater_D2_receiveBuf[32];
+uint8_t                   manipulater_D2_receiveBuf[32]; //机械臂返回值
 float                     RsCmd_position_Limit_P_Mid  = 0.f;
 float                     RsCmd_position_Limit_R_Mid  = 0.f;
 float                     manipulater_throtal_R_devid = 0.01f; //手柄值除以该值并加上中值,将手柄[-100,100]映射到位置限制极限值，在Init函数中进行初始化
@@ -44,12 +44,11 @@ union {
     uint8_t char_val[8];
 } manipulater_position;
 
-float linshiver = 0.f;
 /**
  * @function_name:manipulater_D2_RS485Init
  * @brief:两轴机械臂初始化，设置模式，限位
- * @param :None
- * @return:bool
+ * @param None
+ * @return bool
  */
 int manipulater_D2_RS485Init(void)
 {
@@ -96,38 +95,64 @@ int manipulater_D2_RS485Init(void)
 
 void ManipulaterTaskFunction(void const *argument)
 {
-    portTickType tick = xTaskGetTickCount();
+    portTickType tick                     = xTaskGetTickCount();
+    uint8_t      motor_rotate_mode_set_ok = 0;
+    int          ManipulaterTask_runTimes = 0;
+
     while (1)
     {
+        //设置模式，判断模式
+        if ((ManipulaterTask_runTimes % 10 == 0) && (motor_rotate_mode_set_ok == 0))
+        {
+            manipulater_D2_send(MOTOR_ROTATE_DRIVER_ID, RS_CMD_MODE, ACK, (uint8_t *)&motor_rotate.runMode, RS_CMD_MODE_LEN);
+            if (ManipulaterTask_runTimes >= 100)
+            {
+                motor_rotate_mode_set_ok = 1;
+            }
+        }
+
+        //FIXME由于485接收部分不完善，此方法无法使用
+        //        if (motor_rotate.runMode == motor_rotate.receive_runMode)
+        //        {
+        //            //运行模式设置成功，可以发送指令运行
+        //            motor_rotate_mode_set_ok = 1;
+        //        }
+        //        else
+        //        {
+        //            manipulater_D2_send(MOTOR_ROTATE_DRIVER_ID, RS_CMD_MODE, ACK, (uint8_t *)&motor_rotate.runMode, RS_CMD_MODE_LEN);
+        //        }
+        // manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_MODE, NOACK, (uint8_t *)&motor_line.runMode, RS_CMD_MODE_LEN);
+
         if (ManipulaterQueue)
         {
             xQueueReceive(ManipulaterQueue, &manipulaterQueue_Data, 1);
-            if (manipulaterQueue_Data.SonarBUTTON != 1) //声呐关闭，启动机械臂
-            {
-                manipulater_position.float_val[0] = -(float)manipulaterQueue_Data.line_motor_position;   //直线电机
-                manipulater_position.float_val[1] = -(float)manipulaterQueue_Data.rotate_motor_position; //旋转电机
+            // if (manipulaterQueue_Data.SonarBUTTON != 1) //声呐关闭，启动机械臂
+            // {
+            manipulater_position.float_val[0] = -(float)manipulaterQueue_Data.line_motor_position;   //直线电机
+            manipulater_position.float_val[1] = -(float)manipulaterQueue_Data.rotate_motor_position; //旋转电机
 
-                if (manipulater_times >= manipulater_period)
+            if (manipulater_times >= manipulater_period)
+            {
+                if (RotOrDir_Flag == 0) //直线电机
                 {
-                    if (RotOrDir_Flag == 0) //直线电机
-                    {
-                        motor_line.send_current = 0.14f * manipulater_position.float_val[0];
-                        manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_CURRENT_SET, NOACK, (uint8_t *)&motor_line.send_current, RS_CMD_CURRENT_SET_LEN);
-                        RotOrDir_Flag = 1;
-                    }
-                    else //旋转电机
-                    {
-                        motor_rotate.send_position = RsCmd_position_Limit_R_Mid + ((float)manipulater_position.float_val[1] * manipulater_throtal_R_devid);
-                        motor_rotate.send_position = ConstrainFloat(motor_rotate.send_position, motor_rotate.set_position_min, motor_rotate.set_position_max);
-                        manipulater_D2_send(MOTOR_ROTATE_DRIVER_ID, RS_CMD_POSITION_SET, NOACK, (uint8_t *)&motor_rotate.send_position, 4);
-                        RotOrDir_Flag = 0;
-                    }
-                    manipulater_times = 0;
+                    motor_line.send_current = 0.14f * manipulater_position.float_val[0];
+                    manipulater_D2_send(MOTOR_LINE_DRIVER_ID, RS_CMD_CURRENT_SET, NOACK, (uint8_t *)&motor_line.send_current, RS_CMD_CURRENT_SET_LEN);
+                    RotOrDir_Flag = 1;
                 }
-                manipulater_times++;
+                else if (RotOrDir_Flag == 1 && motor_rotate_mode_set_ok) //旋转电机
+                {
+                    motor_rotate.send_position = RsCmd_position_Limit_R_Mid + ((float)manipulater_position.float_val[1] * manipulater_throtal_R_devid);
+                    motor_rotate.send_position = ConstrainFloat(motor_rotate.send_position, motor_rotate.set_position_min, motor_rotate.set_position_max);
+                    manipulater_D2_send(MOTOR_ROTATE_DRIVER_ID, RS_CMD_POSITION_SET, NOACK, (uint8_t *)&motor_rotate.send_position, 4);
+                    RotOrDir_Flag = 0;
+                }
+                manipulater_times = 0;
             }
+            manipulater_times++;
+            // }
         }
         vTaskDelayUntil(&tick, 20);
+        ManipulaterTask_runTimes++;
     }
 }
 
@@ -149,7 +174,7 @@ int manipulater_D2_send(uint8_t DID, uint8_t obj, uint8_t ASK, uint8_t *send_dat
     manipulater_D2_sendBuf[0] = 0xA5;
     manipulater_D2_sendBuf[1] = len + 5;
     manipulater_D2_sendBuf[2] = DID;
-    obj                       = obj | (ASK << 8); //判断是否需要ASK
+    obj |= (ASK << 7); //判断是否需要ASK
     manipulater_D2_sendBuf[3] = obj;
     memcpy(&manipulater_D2_sendBuf[4], send_data, len);
     manipulater_D2_sendBuf[len + 4] = crc8(manipulater_D2_sendBuf, manipulater_D2_sendBuf[1] - 1);
@@ -172,7 +197,7 @@ int manipulater_D2_send(uint8_t DID, uint8_t obj, uint8_t ASK, uint8_t *send_dat
  */
 int manipulater_D2_receive(uint8_t *manipulater_D2_receiveBuf)
 {
-    if (manipulater_D2_receiveBuf[0] != manipulater_D2_RS485_HEADER) //数据帧头不对
+    if (manipulater_D2_receiveBuf[0] != manipulater_D2_RS485_ACKHEADER) //数据帧头不对
         return -2;
     RsCmd_Len = manipulater_D2_receiveBuf[1];
     RsCmd_Crc = manipulater_D2_receiveBuf[RsCmd_Len - 1];
@@ -187,7 +212,7 @@ int manipulater_D2_receive(uint8_t *manipulater_D2_receiveBuf)
         {
         case 0x01:
             /* 控制模式返回值 */
-            memcpy(&motor_line.runMode, &manipulater_D2_receiveBuf[4], 1);
+            memcpy(&motor_line.receive_runMode, &manipulater_D2_receiveBuf[4], 1);
             break;
         case 0x2:
             /* 设定速度时，电机返回值，长度为12byte，三个float，分别为当前位置，当前速度，当前电流 */
@@ -232,8 +257,7 @@ int manipulater_D2_receive(uint8_t *manipulater_D2_receiveBuf)
         {
         case 0x01:
             /* 控制模式返回值 */
-            memcpy(&motor_rotate.runMode, &manipulater_D2_receiveBuf[4], 1);
-            break;
+            memcpy(&motor_rotate.receive_runMode, &manipulater_D2_receiveBuf[4], 1);
         case 0x2:
             /* 设定速度时，电机返回值，长度为12byte，三个float，分别为当前位置，当前速度，当前电流 */
             memcpy(&motor_rotate.motor_position, &manipulater_D2_receiveBuf[4], 12); //由于位置，速度，电流已经按顺序排列好，故可以一次性进行复制

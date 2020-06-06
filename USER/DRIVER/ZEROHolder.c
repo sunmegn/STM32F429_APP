@@ -511,7 +511,7 @@ uint8_t ZERO_GetDriverState(uint16_t CW)
 {
     uint8_t SW = 0;
 
-    SW = ZERO_ChangeStat(1, CW, 5);
+    SW = ZERO_ChangeStat(1, CW, 50);
 
     return SW;
 }

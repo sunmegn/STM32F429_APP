@@ -321,7 +321,6 @@ void HAL_USART3_Receive_IDLE(void)
 {
     __HAL_UART_CLEAR_IDLEFLAG(&huart3);
     HAL_UART_DMAStop(&huart3); //DMAmuxChannel
-
     usart3_rxbuf.RxSize = USART3_RX_LEN - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
     usart3_Decode(usart3_rxbuf.RX_pData, usart3_rxbuf.RxSize);
     memset(usart3_rxbuf.RX_pData, '\0', usart3_rxbuf.RxSize);
@@ -332,9 +331,9 @@ void HAL_USART3_Receive_IDLE(void)
 //usart3数据解析
 int usart3_Decode(uint8_t *buf, uint16_t len)
 {
-    if ((len <= 32) & (buf[0] == 0xA5)) //有可能是机械臂返回值
+    if ((len <= 32) & (buf[0] == 0xAC)) //有可能是机械臂返回值
     {
-        memcpy(manipulater_D2_receiveBuf, buf, buf[len - 2]);
+        memcpy(manipulater_D2_receiveBuf, buf, len);
         manipulater_D2_receive(manipulater_D2_receiveBuf);
     }
     return 0;

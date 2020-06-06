@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2020-02-19 14:33:17
  * @LastEditors   :smake
- * @LastEditTime  :2020-06-02 23:30:41
+ * @LastEditTime  :2020-06-05 11:40:09
  * @brief         :
  */
 #include "Object.h"
@@ -27,10 +27,10 @@ extern u8                motorcalflag;      //电机标定标志
 extern u16               MotorPWMMidVal[6]; //控制任务使用的PWM中值
 MotorMidVal_t            PWMMidFromPC;      //用于接收上位机发送来的推进器中值
 //云台 Holder
-Holder_t      holder_data;         //云台设置参数
-QueueHandle_t ObjectToHolderQueue; //->HolderTask
-
-void ObjectToHolderQueue_Init(void)
+Holder_t      holder_data;            //云台设置参数
+QueueHandle_t ObjectToHolderQueue;    //->HolderTask
+uint8_t       HolderWithPtz_flag = 0; //两个云台一起运动还是主云台单独运动
+void          ObjectToHolderQueue_Init(void)
 {
     do
     {
@@ -132,7 +132,7 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
         break;
     case CMD_HOLDERMCAL_ID: //0x200F//云台校准
 
-//        gc_initzero_BUTTON = 1; //云台校准
+        //        gc_initzero_BUTTON = 1; //云台校准
         memcpy(&holder_data, rxbuf, sizeof(Holder_t));
         if (ObjectToHolderQueue)
             xQueueOverwrite(ObjectToHolderQueue, &holder_data);
@@ -140,8 +140,20 @@ bool PC_MasterDispose(bool IsCAN, uint8_t SID, uint16_t obj, uint8_t *buf, int l
     case CMD_ALL_ID: //0x3006
         memcpy(&ctrl_cmd, rxbuf, sizeof(mtlink_all_CMD_t));
         ctrl_cmd.UpDown = (-1) * ctrl_cmd.UpDown;
-        LED_SetPwm(CONSTRAIN(ctrl_cmd.light * 20, 5000, 0));
-        YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 4 + 1500, 1900, 1100)); //控制摄像头舵机
+        LED_SetPwm(CONSTRAIN(ctrl_cmd.light, 100, 0));
+        if (ctrl_cmd.ReserveBUTTON1)
+        {
+            if (HolderWithPtz_flag == 0)
+            {
+                HolderWithPtz_flag = 1;
+            }
+            else
+            {
+                HolderWithPtz_flag = 0;
+            }
+        }
+        if (HolderWithPtz_flag)
+            YunTai_SetPwm(CONSTRAIN(ctrl_cmd.ptz * 4 + 1500, 1900, 1100)); //控制摄像头舵机
 
         if (DataManageQueue)
             xQueueOverwrite(DataManageQueue, &ctrl_cmd);

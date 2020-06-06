@@ -3,7 +3,7 @@
  * @version       :v1.0.0
  * @Date          :2019-12-16 11:15:47
  * @LastEditors   :smake
- * @LastEditTime  :2020-04-30 14:52:30
+ * @LastEditTime  :2020-06-07 01:37:16
  * @brief         :
  */
 
@@ -64,7 +64,7 @@ SOTF_typeDef CloseLoopUD;
 void ControlTask_Function(void const *argument)
 {
     portTickType tick = xTaskGetTickCount();
-    // AllPIDArgument = ;//TODO 修正从flash读写PID值
+    // AllPIDArgument = ;//TODO 从flash读写PID值
     NLPID_Init();
     Cal6FreedomForceValue(30, PROPFMin, PROPFMax);
     AllRocker_Init(500, 0.02, 100, -1000, 1000); //摇杆值转化成力函数参数初始化,限制死区，极值。
@@ -94,8 +94,8 @@ void ControlTask_Function(void const *argument)
             TottleCro.Tz    = RockerValDispose(&RockerLimZO, myctrlparam.UD_rocker * 10.0, 5, 100);
             TottleCro.Tyaw  = RockerValDispose(&RockerLimOYAW, -1 * myctrlparam.TURN_rocker * 10.0, 5, 100);
             TottleCro.Tpith = 0;
-            //            TottleCro.Tx    = TottleCro.Tx * 0.5; //转向限速
-            //            roll_ref        = -4.6;
+            TottleCro.Tx    = TottleCro.Tx * 0.5; //转向限速
+            // roll_ref        = -4.6;//横滚校准
             if ((g_runMode & 0x04) || (g_runMode & 0x02)) //入水判断myctrlparam.depth > 5
             {
                 TottleCro.Troll = NLPID_Control(&RollNLPID, myctrlparam.roll, myctrlparam.grayX, roll_ref);
@@ -126,7 +126,7 @@ void ControlTask_Function(void const *argument)
             {
                 if (fabs(myctrlparam.UD_rocker) > 0)
                 {
-                    depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 2.0, 10, -100, 100)));
+                    depth_ref = SOTFOutput(&CloseLoopUD, myctrlparam.depth + DEEPCODE2SPEED(RockerLimit(myctrlparam.UD_rocker * 6.0, 10, -100, 100)));
                 }
 
                 if (depth_ref < 0)
@@ -409,7 +409,7 @@ void NLPID_Init(void)
     /***外环反馈*15Hz***/
     IIR_2OrderLpf_Init(&YawNLPID.Ofbtf, 50, 10);
     /****航向外环PID*****/
-    YawNLPID.OP      = 6;    //7.4
+    YawNLPID.OP      = 4;    //7.4
     YawNLPID.OI      = 0.02; //0.02;//
     YawNLPID.OD      = 0;
     YawNLPID.OeImax  = 100;

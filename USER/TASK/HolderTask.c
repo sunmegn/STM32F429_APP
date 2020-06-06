@@ -100,8 +100,8 @@ void HolderTask_Function(void const *argument)
                         }
                     }
 
-                    // HolderParam.CW = CWSOandENOperation;                      //设定控制字
-                    // HolderParam.SW = ZERO_GetDriverState(CWSOandENOperation); //状态机切换状态  返回当前状态;
+                    HolderParam.CW = CWSOandENOperation;                      //设定控制字
+                    HolderParam.SW = ZERO_GetDriverState(CWSOandENOperation); //状态机切换状态  返回当前状态;
 
                     /**获取当前位置**/
                     HolderParam.getpos = -ZERO_Get_Angle(PosParam.midpos, PosParam.maxang, PosParam.minang);
@@ -154,11 +154,12 @@ void HolderTask_Function(void const *argument)
                     //                     }
 
                     /*云台动作异常判断*/
-                    if (HolderPosERRCheak(ValToAngle(HolderParam.setpos, PosParam.maxang, PosParam.minang), -HolderParam.getpos, 5, 500))
+                    if (HolderPosERRCheak(ValToAngle(HolderParam.setpos, PosParam.maxang, PosParam.minang), -HolderParam.getpos, 5, 50))
                     { //云台未正常动作 重新初始
                         // MTLinkMsgPrintf(MY_ID, HOST_ID, "Holder ERR!! SET:%0.3f GET:%0.3f", ValToAngle(HolderParam.setpos, PosParam.maxang, PosParam.minang), -HolderParam.getpos);
-                        HolderParam.vaild = 0x41;
-                        break;
+						ZERO_Init(100);
+						HolderParam.vaild = 0x41;
+//                        break;
                     }
                 }
                 //                 GetSensorState(HOLDER_ID, HolderParam.vaild, 0x0f, 1000, &SystemState);
@@ -204,7 +205,7 @@ uint8_t HoldePos_Init(void)
 
 uint8_t HolderPosERRCheak(float setpos, float readpos, float val, int times)
 {
-    static int cnt;
+    static int cnt = 0;
 
     if (fabs(setpos - readpos) >= val)
         cnt++;

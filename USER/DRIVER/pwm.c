@@ -14,7 +14,7 @@ void SetCameraAngle(int value)
 void PWM_Init(void)
 {
 	HAL_TIM_PWM_Start(&YunTai_TIM,YunTai_TIM_CH);
-	__HAL_TIM_SET_COMPARE(&YunTai_TIM,YunTai_TIM_CH,1500);//相机云台
+	__HAL_TIM_SET_COMPARE(&YunTai_TIM,YunTai_TIM_CH,1200);//相机云台
 	
 	HAL_TIM_PWM_Start(&LED_TIM,LED_PWM_CH1);         //左大灯
 	__HAL_TIM_SET_COMPARE(&LED_TIM,LED_PWM_CH1,0); 
